@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --color-primary: #d8d0bc;
+  --color-primary-dark: #565448;
+  --color-accent: #9013fe;
+  --color-background: #f5f5f5;
+  --color-text: #333333;
+}
+
+@theme {
+  --font-display: "Poppins";
+}
+
+@theme inline {
+  --color-primary: oklch(0.86 0.0284 88.77);
+  --color-primary-black: oklch(0 0 0);
+  --color-primary-dark: oklch(0.2 0.0284 88.77);
+}
+
+@media (prefers-color-scheme: dark) {
+}
