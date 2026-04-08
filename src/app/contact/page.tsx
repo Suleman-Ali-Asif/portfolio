@@ -1,8 +1,14 @@
 "use client";
 
-import Nav from "@/components/Nav";
-import { Mail, MapPin, MessageSquare, Phone, Send, User } from "lucide-react";
+import { ArrowLeft, Mail, MapPin, Phone, Send } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
+
+const CONTACT_INFO = [
+  { icon: Mail, label: "Email", value: "hello@example.com" },
+  { icon: Phone, label: "Phone", value: "+1 (555) 123-4567" },
+  { icon: MapPin, label: "Location", value: "Karachi, PK" },
+];
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -11,211 +17,191 @@ export default function ContactPage() {
     subject: "",
     message: "",
   });
+  const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
 
   const handleInputChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle form submission here
+    setStatus("sending");
+    // Replace with real submission logic
+    await new Promise((r) => setTimeout(r, 900));
     console.log("Form submitted:", formData);
-    // Reset form
     setFormData({ name: "", email: "", subject: "", message: "" });
+    setStatus("sent");
+    setTimeout(() => setStatus("idle"), 5000);
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden p-4 bg-[#565448] ">
-      <Nav />
-      {/* Subtle background elements */}
-      <div className="absolute inset-0 mt-10">
-        <div
-          className="absolute top-20 left-20 w-64 h-64 rounded-full opacity-10"
-          style={{ backgroundColor: "#d8d0bc " }}
-        ></div>
-        <div
-          className="absolute bottom-20 right-20 w-48 h-48 rounded-full opacity-10"
-          style={{ backgroundColor: "#d8d0bc " }}
-        ></div>
-        <div
-          className="absolute top-1/2 left-1/3 w-32 h-32 rounded-full opacity-5"
-          style={{ backgroundColor: "#d8d0bc " }}
-        ></div>
-      </div>
+    <div
+      className="min-h-screen bg-[#0b0b0b] text-[#e8e3d9]"
+      style={{ fontFamily: "var(--font-sans)" }}
+    >
+      {/* Dot grid */}
+      <div
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
 
-      <div className="relative z-10 container mx-auto px-4 py-16">
+      <div className="relative max-w-[1000px] mx-auto px-6 sm:px-10 lg:px-16 py-14">
+        {/* Back link */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 text-[#333] hover:text-[#888] text-xs transition-colors duration-200 mb-16"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back
+        </Link>
+
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1
-            className="text-4xl md:text-5xl font-bold mb-4"
-            style={{ color: "#d8d0bc " }}
-          >
-            Contact Me
-          </h1>
+        <div className="mb-16">
           <p
-            className="text-lg opacity-80 max-w-2xl mx-auto"
-            style={{ color: "#d8d0bc " }}
+            className="text-[#2a2a2a] text-[10px] tracking-[0.25em] uppercase mb-5"
+            style={{ fontFamily: "var(--font-mono)" }}
           >
-            Have a question or want to work together? I&apos;d love to hear from
-            you.
+            Contact
           </p>
+          <h1 className="text-5xl lg:text-6xl font-bold text-[#f5f2ed] tracking-tight leading-tight">
+            Say hello.
+          </h1>
         </div>
 
-        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Information */}
-          <div className="space-y-8">
-            <div className="backdrop-blur-md bg-white/20 rounded-2xl p-8 border border-white/30 shadow-xl">
-              <h2
-                className="text-2xl font-semibold mb-6"
-                style={{ color: "#d8d0bc " }}
-              >
-                Get in Touch
-              </h2>
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 rounded-full backdrop-blur-md bg-white/30 border border-white/40">
-                    <Mail className="w-6 h-6" style={{ color: "#d8d0bc " }} />
-                  </div>
-                  <div>
-                    <h3 className="font-medium" style={{ color: "#d8d0bc " }}>
-                      Email
-                    </h3>
-                    <p className="opacity-75" style={{ color: "#d8d0bc " }}>
-                      hello@example.com
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 rounded-full backdrop-blur-md bg-white/30 border border-white/40">
-                    <Phone className="w-6 h-6" style={{ color: "#d8d0bc " }} />
-                  </div>
-                  <div>
-                    <h3 className="font-medium" style={{ color: "#d8d0bc " }}>
-                      Phone
-                    </h3>
-                    <p className="opacity-75" style={{ color: "#d8d0bc " }}>
-                      +1 (555) 123-4567
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 rounded-full backdrop-blur-md bg-white/30 border border-white/40">
-                    <MapPin className="w-6 h-6" style={{ color: "#d8d0bc " }} />
-                  </div>
-                  <div>
-                    <h3 className="font-medium" style={{ color: "#d8d0bc " }}>
-                      Location
-                    </h3>
-                    <p className="opacity-75" style={{ color: "#d8d0bc " }}>
-                      New York, NY
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-20">
+          {/* Left: info */}
+          <div className="lg:col-span-2 space-y-10">
+            <p className="text-[#4a4a4a] text-sm leading-relaxed">
+              I&apos;m available for freelance projects and open to full-time
+              opportunities. I typically respond within 24 hours.
+            </p>
 
-            {/* Response Time */}
-            <div className="backdrop-blur-md bg-white/15 rounded-2xl p-6 border border-white/25 shadow-lg">
-              <h3
-                className="text-lg font-medium mb-3"
-                style={{ color: "#d8d0bc " }}
-              >
-                Response Time
-              </h3>
-              <p className="opacity-75" style={{ color: "#d8d0bc " }}>
-                I typically respond to emails within 24 hours during business
-                days.
-              </p>
+            <div className="space-y-7 pt-8 border-t border-[#161616]">
+              {CONTACT_INFO.map(({ icon: Icon, label, value }) => (
+                <div key={label} className="flex items-start gap-4">
+                  <Icon className="w-3.5 h-3.5 text-[#2a2a2a] mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p
+                      className="text-[#2a2a2a] text-[10px] uppercase tracking-[0.18em] mb-1"
+                      style={{ fontFamily: "var(--font-mono)" }}
+                    >
+                      {label}
+                    </p>
+                    <p className="text-[#777] text-sm">{value}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Contact Form */}
-          <div className="backdrop-blur-md bg-white/20 rounded-2xl p-8 border border-white/30 shadow-xl">
-            <h2
-              className="text-2xl font-semibold mb-6"
-              style={{ color: "#d8d0bc " }}
-            >
-              Send a Message
-            </h2>
-            <form onSubmit={(e) => handleSubmit(e)} className="space-y-6">
-              <div className="relative">
-                <User
-                  className="absolute left-3 top-3 w-5 h-5 opacity-60"
-                  style={{ color: "#d8d0bc " }}
-                />
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={(e) => handleInputChange(e)}
-                  placeholder="Your Name"
-                  className="w-full pl-12 pr-4 py-3 rounded-xl backdrop-blur-md bg-white/30 border border-white/40 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300"
-                  style={{ color: "#d8d0bc " }}
-                  required
-                />
-              </div>
-              <div className="relative">
-                <Mail
-                  className="absolute left-3 top-3 w-5 h-5 opacity-60"
-                  style={{ color: "#d8d0bc " }}
-                />
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Your Email"
-                  className="w-full pl-12 pr-4 py-3 rounded-xl backdrop-blur-md bg-white/30 border border-white/40 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300"
-                  style={{ color: "#d8d0bc " }}
-                  required
-                />
-              </div>
-              <div className="relative">
-                <MessageSquare
-                  className="absolute left-3 top-3 w-5 h-5 opacity-60"
-                  style={{ color: "#d8d0bc " }}
-                />
-                <input
-                  type="text"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleInputChange}
-                  placeholder="Subject"
-                  className="w-full pl-12 pr-4 py-3 rounded-xl backdrop-blur-md bg-white/30 border border-white/40 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300"
-                  style={{ color: "#d8d0bc " }}
-                  required
-                />
-              </div>
-              <div className="relative">
-                <textarea
-                  name="message"
-                  value={formData.message}
-                  onChange={(e) => handleInputChange(e)}
-                  placeholder="Your Message"
-                  rows={6}
-                  className="w-full p-4 rounded-xl backdrop-blur-md bg-white/30 border border-white/40 placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300 resize-none"
-                  style={{ color: "#d8d0bc " }}
-                  required
-                ></textarea>
-              </div>
+          {/* Right: form */}
+          <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-8">
+            {/* Name + Email row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              {(["name", "email"] as const).map((field) => (
+                <div key={field} className="space-y-2">
+                  <label
+                    htmlFor={field}
+                    className="block text-[#2a2a2a] text-[10px] uppercase tracking-[0.2em]"
+                    style={{ fontFamily: "var(--font-mono)" }}
+                  >
+                    {field === "name" ? "Name" : "Email"}
+                  </label>
+                  <input
+                    id={field}
+                    type={field === "email" ? "email" : "text"}
+                    name={field}
+                    value={formData[field]}
+                    onChange={handleInputChange}
+                    required
+                    placeholder={
+                      field === "name" ? "Your name" : "you@example.com"
+                    }
+                    className="w-full bg-transparent border-b border-[#1c1c1c] py-3 text-[#d8d0bc] text-sm placeholder:text-[#242424] focus:outline-none focus:border-[#d8d0bc] transition-colors duration-200"
+                    style={{ fontFamily: "var(--font-sans)" }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Subject */}
+            <div className="space-y-2">
+              <label
+                htmlFor="subject"
+                className="block text-[#2a2a2a] text-[10px] uppercase tracking-[0.2em]"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                Subject
+              </label>
+              <input
+                id="subject"
+                type="text"
+                name="subject"
+                value={formData.subject}
+                onChange={handleInputChange}
+                required
+                placeholder="What's this about?"
+                className="w-full bg-transparent border-b border-[#1c1c1c] py-3 text-[#d8d0bc] text-sm placeholder:text-[#242424] focus:outline-none focus:border-[#d8d0bc] transition-colors duration-200"
+                style={{ fontFamily: "var(--font-sans)" }}
+              />
+            </div>
+
+            {/* Message */}
+            <div className="space-y-2">
+              <label
+                htmlFor="message"
+                className="block text-[#2a2a2a] text-[10px] uppercase tracking-[0.2em]"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                Message
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                value={formData.message}
+                onChange={handleInputChange}
+                required
+                rows={6}
+                placeholder="Tell me about your project..."
+                className="w-full bg-transparent border-b border-[#1c1c1c] py-3 text-[#d8d0bc] text-sm placeholder:text-[#242424] focus:outline-none focus:border-[#d8d0bc] transition-colors duration-200 resize-none"
+                style={{ fontFamily: "var(--font-sans)" }}
+              />
+            </div>
+
+            {/* Submit row */}
+            <div className="flex items-center gap-6 pt-2">
               <button
                 type="submit"
-                className="w-full py-3 px-6 rounded-xl backdrop-blur-md bg-white/30 border border-white/40 font-medium transition-all duration-300 hover:bg-white/40 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50 flex items-center justify-center space-x-2"
-                style={{ color: "#d8d0bc " }}
+                disabled={status !== "idle"}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#d8d0bc] text-[#0b0b0b] text-sm font-semibold hover:bg-[#c9b99a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-200"
               >
-                <Send className="w-5 h-5" />
-                <span>Send Message</span>
+                {status === "sending" && "Sending..."}
+                {status === "sent" && "Sent!"}
+                {status === "idle" && (
+                  <>
+                    Send message
+                    <Send className="w-3.5 h-3.5" />
+                  </>
+                )}
               </button>
-            </form>
-          </div>
+
+              {status === "sent" && (
+                <span
+                  className="text-[#444] text-xs"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
+                  I&apos;ll be in touch soon.
+                </span>
+              )}
+            </div>
+          </form>
         </div>
       </div>
     </div>
