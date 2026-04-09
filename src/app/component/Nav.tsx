@@ -29,7 +29,7 @@ function Nav({ activeSection }: { activeSection: string }) {
             className="text-[color:var(--color-text-label)] text-xs mt-0.5"
             style={{ fontFamily: "var(--font-mono)" }}
           >
-            5+ yrs · Karachi, PK
+            3+ yrs · Lahore, PK
           </p>
         </div>
 
@@ -52,7 +52,9 @@ function Nav({ activeSection }: { activeSection: string }) {
                   className="block h-px transition-all duration-300"
                   style={{
                     width: isActive ? "2rem" : "1rem",
-                    backgroundColor: isActive ? "var(--color-accent)" : "var(--color-border)",
+                    backgroundColor: isActive
+                      ? "var(--color-accent)"
+                      : "var(--color-border)",
                     transition: "width 300ms, background-color 300ms",
                   }}
                 />
@@ -60,7 +62,9 @@ function Nav({ activeSection }: { activeSection: string }) {
                   className="text-xs transition-colors duration-200"
                   style={{
                     fontFamily: "var(--font-mono)",
-                    color: isActive ? "var(--color-accent)" : "var(--color-text-muted)",
+                    color: isActive
+                      ? "var(--color-accent)"
+                      : "var(--color-text-muted)",
                   }}
                 >
                   {label}
