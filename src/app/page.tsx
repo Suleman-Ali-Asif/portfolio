@@ -46,7 +46,7 @@ function ModeToggle() {
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.key === "`") {
+      if (e.ctrlKey && e.shiftKey && e.key === "`") {
         e.preventDefault();
         toggleMode();
       }
@@ -58,7 +58,7 @@ function ModeToggle() {
   return (
     <button
       onClick={toggleMode}
-      title={mode === "gui" ? "Open Terminal (Ctrl+`)" : "Open GUI (Ctrl+`)"}
+      title={mode === "gui" ? "Open Terminal (Ctrl+Shift+`)" : "Open GUI (Ctrl+Shift+`)"}
       className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-3.5 py-2 font-mono border border-edge bg-surface text-accent hover:border-accent hover:bg-hover transition-all duration-150 text-[11px]"
     >
       {mode === "gui" ? (

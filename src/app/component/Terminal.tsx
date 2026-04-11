@@ -28,7 +28,7 @@ const BOOT: TerminalLine[] = [
   makeLine("output", "╚══════════════════════════════════════╝"),
   makeLine("dim",    ""),
   makeLine("dim",    "Type 'help' for available commands."),
-  makeLine("dim",    "Press Ctrl+` to return to GUI mode."),
+  makeLine("dim",    "Press Ctrl+Shift+` to return to GUI mode."),
   makeLine("dim",    ""),
 ];
 
@@ -96,7 +96,7 @@ export default function Terminal() {
           makeLine("output", "  arch <slug>         Open system design visualizer"),
           makeLine("output", "  clear               Clear the terminal"),
           makeLine("dim",    ""),
-          makeLine("dim",    "Keyboard shortcut: Ctrl+` to toggle GUI / Terminal"),
+          makeLine("dim",    "Keyboard shortcut: Ctrl+Shift+` to toggle GUI / Terminal"),
           makeLine("dim",    ""),
         );
         break;
