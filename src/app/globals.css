@@ -25,6 +25,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Hide native cursor everywhere — custom cursor handles it */
+*, *::before, *::after {
+  cursor: none !important;
+}
+
 body {
   background-color: var(--color-canvas);
   color: var(--color-bright);

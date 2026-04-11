@@ -55,7 +55,7 @@ function Nav({ activeSection }: { activeSection: string }) {
 
       {/* Socials + copyright */}
       <div>
-        <div className="flex items-center gap-5 mb-5">
+        <div className="flex items-center gap-5 mb-4">
           <a
             href="https://github.com/Suleman-Ali-Asif"
             target="_blank"
@@ -73,6 +73,14 @@ function Nav({ activeSection }: { activeSection: string }) {
             <Mail className="w-[15px] h-[15px]" />
           </Link>
         </div>
+        <a
+          href="/resume.pdf"
+          download="Suleman_Ali_Resume.pdf"
+          className="flex items-center justify-between w-full font-mono text-xs text-canvas bg-accent hover:bg-accent-dim px-4 py-3 transition-colors duration-200 mb-5"
+        >
+          <span className="font-semibold tracking-wide">Download Résumé</span>
+          <span className="text-sm">↓</span>
+        </a>
         <p className="text-faint text-xs font-mono">© 2026</p>
       </div>
     </aside>

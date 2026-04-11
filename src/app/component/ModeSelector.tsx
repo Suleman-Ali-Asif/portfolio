@@ -43,7 +43,7 @@ export default function ModeSelector() {
         <div className="grid grid-cols-2 gap-4 w-full">
           <button
             onClick={() => choose("terminal")}
-            className="group flex flex-col items-center gap-3 border border-edge bg-surface hover:border-accent hover:bg-hover transition-all duration-150 px-6 py-9 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            className="group flex flex-col items-center gap-3 border border-edge bg-surface hover:border-accent hover:bg-hover transition-all duration-150 px-6 py-9 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent cursor-pointer"
           >
             <span className="font-mono text-2xl text-accent opacity-40 group-hover:opacity-100 transition-opacity duration-150">
               &gt;_
@@ -56,7 +56,7 @@ export default function ModeSelector() {
 
           <button
             onClick={() => choose("gui")}
-            className="group flex flex-col items-center gap-3 border border-edge bg-surface hover:border-accent hover:bg-hover transition-all duration-150 px-6 py-9 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            className="group flex flex-col items-center gap-3 border border-edge bg-surface hover:border-accent hover:bg-hover transition-all duration-150 px-6 py-9 focus:outline-none focus-visible:ring-1 focus-visible:ring-accent cursor-pointer"
           >
             <span className="text-2xl text-accent opacity-40 group-hover:opacity-100 transition-opacity duration-150">
               ⬚
