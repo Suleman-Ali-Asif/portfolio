@@ -5,9 +5,9 @@ import Link from "next/link";
 import { useState } from "react";
 
 const CONTACT_INFO = [
-  { icon: Mail, label: "Email", value: "hello@example.com" },
-  { icon: Phone, label: "Phone", value: "+1 (555) 123-4567" },
-  { icon: MapPin, label: "Location", value: "Karachi, PK" },
+  { icon: Mail, label: "Email", value: "a.suleman3757@gmail.com" },
+  { icon: Phone, label: "Phone", value: "+92 321 6611645" },
+  { icon: MapPin, label: "Location", value: "Lahore, PK" },
 ];
 
 export default function ContactPage() {
@@ -25,28 +25,43 @@ export default function ContactPage() {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("sending");
-    // Replace with real submission logic
-    await new Promise((r) => setTimeout(r, 900));
-    console.log("Form submitted:", formData);
-    setFormData({ name: "", email: "", subject: "", message: "" });
-    setStatus("sent");
-    setTimeout(() => setStatus("idle"), 5000);
+    setError(null);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error ?? "Something went wrong.");
+      }
+      setFormData({ name: "", email: "", subject: "", message: "" });
+      setStatus("sent");
+      setTimeout(() => setStatus("idle"), 5000);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to send. Please try again.",
+      );
+      setStatus("idle");
+    }
   };
 
   return (
-    <div
-      className="min-h-screen bg-[#0b0b0b] text-[#e8e3d9]"
-      style={{ fontFamily: "var(--font-sans)" }}
-    >
+    <div className="min-h-screen bg-canvas text-bright">
       {/* Dot grid */}
       <div
         className="fixed inset-0 pointer-events-none"
         style={{
           backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px)",
+            "radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px)",
           backgroundSize: "28px 28px",
         }}
       />
@@ -55,8 +70,7 @@ export default function ContactPage() {
         {/* Back link */}
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-[#333] hover:text-[#888] text-xs transition-colors duration-200 mb-16"
-          style={{ fontFamily: "var(--font-mono)" }}
+          className="inline-flex items-center gap-2 font-mono text-secondary hover:text-muted text-xs transition-colors duration-200 mb-16"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back
@@ -64,13 +78,10 @@ export default function ContactPage() {
 
         {/* Header */}
         <div className="mb-16">
-          <p
-            className="text-[#2a2a2a] text-[10px] tracking-[0.25em] uppercase mb-5"
-            style={{ fontFamily: "var(--font-mono)" }}
-          >
+          <p className="font-mono text-label text-[10px] tracking-[0.25em] uppercase mb-5">
             Contact
           </p>
-          <h1 className="text-5xl lg:text-6xl font-bold text-[#f5f2ed] tracking-tight leading-tight">
+          <h1 className="text-5xl lg:text-6xl font-bold text-bright tracking-tight leading-tight">
             Say hello.
           </h1>
         </div>
@@ -78,23 +89,29 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-20">
           {/* Left: info */}
           <div className="lg:col-span-2 space-y-10">
-            <p className="text-[#4a4a4a] text-sm leading-relaxed">
+            <p className="text-label text-sm leading-relaxed">
               I&apos;m available for freelance projects and open to full-time
               opportunities. I typically respond within 24 hours.
             </p>
 
-            <div className="space-y-7 pt-8 border-t border-[#161616]">
+            <div className="space-y-7 pt-8 border-t border-edge">
               {CONTACT_INFO.map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex items-start gap-4">
-                  <Icon className="w-3.5 h-3.5 text-[#2a2a2a] mt-0.5 flex-shrink-0" />
+                  <Icon className="w-3.5 h-3.5 text-secondary mt-0.5 flex-shrink-0" />
                   <div>
-                    <p
-                      className="text-[#2a2a2a] text-[10px] uppercase tracking-[0.18em] mb-1"
-                      style={{ fontFamily: "var(--font-mono)" }}
-                    >
+                    <p className="font-mono text-label text-[10px] uppercase tracking-[0.18em] mb-1">
                       {label}
                     </p>
-                    <p className="text-[#777] text-sm">{value}</p>
+                    {label === "Email" ? (
+                      <a
+                        href={`mailto:${value}`}
+                        className="text-muted text-sm"
+                      >
+                        {value}
+                      </a>
+                    ) : (
+                      <p className="text-muted text-sm">{value}</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -103,14 +120,12 @@ export default function ContactPage() {
 
           {/* Right: form */}
           <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-8">
-            {/* Name + Email row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               {(["name", "email"] as const).map((field) => (
                 <div key={field} className="space-y-2">
                   <label
                     htmlFor={field}
-                    className="block text-[#2a2a2a] text-[10px] uppercase tracking-[0.2em]"
-                    style={{ fontFamily: "var(--font-mono)" }}
+                    className="block font-mono text-label text-[10px] uppercase tracking-[0.2em]"
                   >
                     {field === "name" ? "Name" : "Email"}
                   </label>
@@ -124,19 +139,16 @@ export default function ContactPage() {
                     placeholder={
                       field === "name" ? "Your name" : "you@example.com"
                     }
-                    className="w-full bg-transparent border-b border-[#1c1c1c] py-3 text-[#d8d0bc] text-sm placeholder:text-[#242424] focus:outline-none focus:border-[#d8d0bc] transition-colors duration-200"
-                    style={{ fontFamily: "var(--font-sans)" }}
+                    className="w-full bg-transparent border-b border-edge py-3 text-faint text-sm placeholder:text-secondary focus:outline-none focus:border-accent transition-colors duration-200"
                   />
                 </div>
               ))}
             </div>
 
-            {/* Subject */}
             <div className="space-y-2">
               <label
                 htmlFor="subject"
-                className="block text-[#2a2a2a] text-[10px] uppercase tracking-[0.2em]"
-                style={{ fontFamily: "var(--font-mono)" }}
+                className="block font-mono text-label text-[10px] uppercase tracking-[0.2em]"
               >
                 Subject
               </label>
@@ -148,17 +160,14 @@ export default function ContactPage() {
                 onChange={handleInputChange}
                 required
                 placeholder="What's this about?"
-                className="w-full bg-transparent border-b border-[#1c1c1c] py-3 text-[#d8d0bc] text-sm placeholder:text-[#242424] focus:outline-none focus:border-[#d8d0bc] transition-colors duration-200"
-                style={{ fontFamily: "var(--font-sans)" }}
+                className="w-full bg-transparent border-b border-edge py-3 text-faint text-sm placeholder:text-secondary focus:outline-none focus:border-accent transition-colors duration-200"
               />
             </div>
 
-            {/* Message */}
             <div className="space-y-2">
               <label
                 htmlFor="message"
-                className="block text-[#2a2a2a] text-[10px] uppercase tracking-[0.2em]"
-                style={{ fontFamily: "var(--font-mono)" }}
+                className="block font-mono text-label text-[10px] uppercase tracking-[0.2em]"
               >
                 Message
               </label>
@@ -170,17 +179,15 @@ export default function ContactPage() {
                 required
                 rows={6}
                 placeholder="Tell me about your project..."
-                className="w-full bg-transparent border-b border-[#1c1c1c] py-3 text-[#d8d0bc] text-sm placeholder:text-[#242424] focus:outline-none focus:border-[#d8d0bc] transition-colors duration-200 resize-none"
-                style={{ fontFamily: "var(--font-sans)" }}
+                className="w-full bg-transparent border-b border-edge py-3 text-faint text-sm placeholder:text-secondary focus:outline-none focus:border-accent transition-colors duration-200 resize-none"
               />
             </div>
 
-            {/* Submit row */}
             <div className="flex items-center gap-6 pt-2">
               <button
                 type="submit"
                 disabled={status !== "idle"}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-[#d8d0bc] text-[#0b0b0b] text-sm font-semibold hover:bg-[#c9b99a] disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-200"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-canvas text-sm font-semibold hover:bg-accent-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-200"
               >
                 {status === "sending" && "Sending..."}
                 {status === "sent" && "Sent!"}
@@ -193,14 +200,15 @@ export default function ContactPage() {
               </button>
 
               {status === "sent" && (
-                <span
-                  className="text-[#444] text-xs"
-                  style={{ fontFamily: "var(--font-mono)" }}
-                >
+                <span className="font-mono text-secondary text-xs">
                   I&apos;ll be in touch soon.
                 </span>
               )}
             </div>
+
+            {error && (
+              <p className="font-mono text-red-400 text-xs mt-2">{error}</p>
+            )}
           </form>
         </div>
       </div>

@@ -44,7 +44,7 @@ function Projects({ isVisible }: { isVisible: boolean }) {
                 className="w-full text-left p-4 sm:p-5 flex justify-between items-center group"
               >
                 <span className="text-sm sm:text-base font-semibold text-[#e8e3d9] dark:text-slate-200 group-hover:text-white transition-colors duration-300">
-                  {item.question}
+                  {item.name}
                 </span>
                 <div className="p-1.5 sm:p-2 bg-[#d8d0bc]/20 dark:bg-slate-400/20 rounded-lg group-hover:bg-[#d8d0bc]/30 transition-all duration-300 flex-shrink-0 ml-2">
                   <ChevronDown
@@ -66,7 +66,7 @@ function Projects({ isVisible }: { isVisible: boolean }) {
                   <div className="relative rounded-xl overflow-hidden shadow-lg group/img">
                     <Image
                       src={item.image}
-                      alt={item.question}
+                      alt={item.name}
                       height={200}
                       width={400}
                       className="w-full h-40 sm:h-48 object-cover transition-transform duration-700 group-hover/img:scale-110"
@@ -79,7 +79,7 @@ function Projects({ isVisible }: { isVisible: boolean }) {
                 </div>
 
                 <div className="px-4 sm:px-5 pb-4 mb-2 sm:pb-5 pt-0 flex flex-wrap">
-                  {item.tags?.map((tag, tagIdx) => (
+                  {item.stack?.map((tag, tagIdx) => (
                     <span
                       key={tagIdx}
                       className="inline-block shadow bg-[#d8d0bc]/20 dark:bg-slate-400/20 text-[#d8d0bc] dark:text-slate-300 text-xs sm:text-sm font-medium rounded-full px-2 py-1 mr-2 mb-2"

@@ -1,29 +1,24 @@
 @import "tailwindcss";
 
-:root {
-  --color-accent: #d8d0bc;
-  --color-accent-dim: #a89f8f;
-  --color-bg: #0b0b0b;
-  --color-surface: #111111;
-  --color-border: #1a1a1a;
-  --color-border-subtle: #111111;
-  --color-text: #f5f2ed;
-
-  /* Readable text hierarchy on dark bg */
-  --color-text-bright: #f5f2ed;
-  --color-text-body: #9c978f;
-  --color-text-muted: #a8a295;
-  --color-text-label: #a59684;
-  --color-text-faint: #ffffff;
-  --color-text-hover-bg: #141210;
-
-  --color-secondary: #6a665e;
-}
-
 @theme {
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
   --font-mono:
     "JetBrains Mono", ui-monospace, "Cascadia Code", "Fira Mono", monospace;
+
+  /* ── Palette — available as text-*, bg-*, border-* Tailwind utilities ── */
+  --color-canvas:     #111114;   /* near-black, barely cool — creates contrast with warm text */
+  --color-surface:    #191818;   /* panel surfaces */
+  --color-edge:       #272522;   /* visible borders, warm tint */
+  --color-edge-soft:  #1f1d1b;   /* subtle dividers */
+  --color-accent:     #c8a870;   /* warm brass/gold — clear contrast from text, not AI orange */
+  --color-accent-dim: #a68854;   /* hover state */
+  --color-bright:     #f0ece4;   /* warm off-white — primary text */
+  --color-body:       #978c82;   /* warm gray — body copy (5.7:1 on canvas, 5.4:1 on surface) */
+  --color-muted:      #887e74;   /* warm mid-gray — secondary text (4.7:1 on canvas, 4.5:1 on surface) */
+  --color-label:      #847970;   /* warm dim — meta labels (4.4:1 on canvas) */
+  --color-faint:      #c8c0b4;   /* warm light — subtle text */
+  --color-hover:      #161412;   /* hover background */
+  --color-secondary:  #8e8480;   /* dim UI elements (5.5:1 on canvas, 4.9:1 on surface — AA pass) */
 }
 
 html {
@@ -31,8 +26,8 @@ html {
 }
 
 body {
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  background-color: var(--color-canvas);
+  color: var(--color-bright);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
@@ -45,15 +40,15 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f1f1f;
+  background: #272522;
   border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #2a2a2a;
+  background: #332f2b;
 }
 
 /* Selection */
 ::selection {
-  background: rgba(216, 208, 188, 0.15);
-  color: #f5f2ed;
+  background: rgba(200, 168, 112, 0.18);
+  color: #f0ece4;
 }
