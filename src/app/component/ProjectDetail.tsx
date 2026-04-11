@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X, ArrowUpRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useApp } from "@/app/context/AppContext";
 import { getConstants } from "@/app/utils/constants";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowUpRight, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import SystemDesignVisualizer from "./SystemDesignVisualizer";
 
 type Tab = "overview" | "arch";
@@ -21,7 +21,9 @@ export default function ProjectDetail() {
   }, [view, selectedSlug]);
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") closeProject(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeProject();
+    };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [closeProject]);
@@ -47,13 +49,18 @@ export default function ProjectDetail() {
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 260, mass: 0.8 }}
+            transition={{
+              type: "spring",
+              damping: 28,
+              stiffness: 260,
+              mass: 0.8,
+            }}
             className="fixed top-0 right-0 bottom-0 z-50 w-full lg:w-[720px] bg-canvas border-l border-edge flex flex-col overflow-hidden"
           >
             {/* Header */}
             <div className="flex-shrink-0 border-b border-edge px-6 py-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-1">
-                {(["overview", "arch"] as Tab[]).map((tab) => (
+                {(["overview", ...(project.architecture ? ["arch"] : [])] as Tab[]).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -132,18 +139,29 @@ export default function ProjectDetail() {
 
                     {project.problem && (
                       <div className="mb-8">
-                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">Problem</p>
-                        <p className="text-body text-sm leading-relaxed">{project.problem}</p>
+                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">
+                          Problem
+                        </p>
+                        <p className="text-body text-sm leading-relaxed">
+                          {project.problem}
+                        </p>
                       </div>
                     )}
 
                     {project.whatIBuilt && project.whatIBuilt.length > 0 && (
                       <div className="mb-8">
-                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">What I Built</p>
+                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">
+                          What I Built
+                        </p>
                         <ul className="space-y-2">
                           {project.whatIBuilt.map((item, i) => (
-                            <li key={i} className="flex gap-3 text-sm text-body">
-                              <span className="text-accent font-mono flex-shrink-0 mt-0.5">—</span>
+                            <li
+                              key={i}
+                              className="flex gap-3 text-sm text-body"
+                            >
+                              <span className="text-accent font-mono flex-shrink-0 mt-0.5">
+                                —
+                              </span>
                               <span className="leading-relaxed">{item}</span>
                             </li>
                           ))}
@@ -151,27 +169,42 @@ export default function ProjectDetail() {
                       </div>
                     )}
 
-                    {project.engineeringWork && project.engineeringWork.length > 0 && (
-                      <div className="mb-8">
-                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">Engineering Work</p>
-                        <ul className="space-y-2">
-                          {project.engineeringWork.map((item, i) => (
-                            <li key={i} className="flex gap-3 text-sm text-body">
-                              <span className="text-accent font-mono flex-shrink-0 mt-0.5">—</span>
-                              <span className="leading-relaxed">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
+                    {project.engineeringWork &&
+                      project.engineeringWork.length > 0 && (
+                        <div className="mb-8">
+                          <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">
+                            Engineering Work
+                          </p>
+                          <ul className="space-y-2">
+                            {project.engineeringWork.map((item, i) => (
+                              <li
+                                key={i}
+                                className="flex gap-3 text-sm text-body"
+                              >
+                                <span className="text-accent font-mono flex-shrink-0 mt-0.5">
+                                  —
+                                </span>
+                                <span className="leading-relaxed">{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
 
                     {project.impact && project.impact.length > 0 && (
                       <div className="mb-8">
-                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">Impact</p>
+                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">
+                          Impact
+                        </p>
                         <ul className="space-y-2">
                           {project.impact.map((item, i) => (
-                            <li key={i} className="flex gap-3 text-sm text-body">
-                              <span className="text-label font-mono flex-shrink-0 mt-0.5">↑</span>
+                            <li
+                              key={i}
+                              className="flex gap-3 text-sm text-body"
+                            >
+                              <span className="text-label font-mono flex-shrink-0 mt-0.5">
+                                ↑
+                              </span>
                               <span className="leading-relaxed">{item}</span>
                             </li>
                           ))}
@@ -181,10 +214,15 @@ export default function ProjectDetail() {
 
                     {project.requestFlow && project.requestFlow.length > 0 && (
                       <div className="mb-10">
-                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">Request Flow</p>
+                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-3">
+                          Request Flow
+                        </p>
                         <ol className="space-y-2.5">
                           {project.requestFlow.map((step, i) => (
-                            <li key={i} className="flex gap-3 text-sm text-body">
+                            <li
+                              key={i}
+                              className="flex gap-3 text-sm text-body"
+                            >
                               <span className="text-faint font-mono text-[10px] tabular-nums flex-shrink-0 mt-0.5 w-5">
                                 {String(i + 1).padStart(2, "0")}
                               </span>
@@ -196,22 +234,24 @@ export default function ProjectDetail() {
                     )}
 
                     {/* Architecture teaser */}
-                    <div className="border border-edge bg-surface p-5">
-                      <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-2">
-                        System Design
-                      </p>
-                      <p className="text-body text-sm leading-relaxed mb-4">
-                        {project.architecture.summary}
-                      </p>
-                      <button
-                        onClick={() => setActiveTab("arch")}
-                        className="font-mono text-[11px] text-accent border border-accent px-3 py-1.5 hover:bg-accent/5 transition-colors duration-150"
-                      >
-                        View Architecture →
-                      </button>
-                    </div>
+                    {project.architecture && (
+                      <div className="border border-edge bg-surface p-5">
+                        <p className="text-label font-mono text-[10px] tracking-[0.2em] uppercase mb-2">
+                          System Design
+                        </p>
+                        <p className="text-body text-sm leading-relaxed mb-4">
+                          {project.architecture.summary}
+                        </p>
+                        <button
+                          onClick={() => setActiveTab("arch")}
+                          className="font-mono text-[11px] text-accent border border-accent px-3 py-1.5 hover:bg-accent/5 transition-colors duration-150"
+                        >
+                          View Architecture →
+                        </button>
+                      </div>
+                    )}
                   </motion.div>
-                ) : (
+                ) : project.architecture ? (
                   <motion.div
                     key="arch"
                     initial={{ opacity: 0, y: 8 }}
@@ -222,9 +262,11 @@ export default function ProjectDetail() {
                     <p className="text-label font-mono text-[10px] tracking-[0.25em] uppercase mb-6">
                       System Architecture
                     </p>
-                    <SystemDesignVisualizer architecture={project.architecture} />
+                    <SystemDesignVisualizer
+                      architecture={project.architecture}
+                    />
                   </motion.div>
-                )}
+                ) : null}
               </AnimatePresence>
             </div>
           </motion.div>

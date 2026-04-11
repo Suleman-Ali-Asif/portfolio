@@ -127,7 +127,7 @@ function GUILayout() {
             {/* Stat grid */}
             <div className="grid grid-cols-3 border border-edge divide-x divide-edge mb-20">
               {[
-                { v: "2+",   l: "Years exp." },
+                { v: "3+",   l: "Years exp." },
                 { v: "4",    l: "Products shipped" },
                 { v: "10+",  l: "Technologies" },
               ].map(({ v, l }) => (

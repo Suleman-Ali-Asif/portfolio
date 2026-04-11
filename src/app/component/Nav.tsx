@@ -73,7 +73,7 @@ function Nav({ activeSection }: { activeSection: string }) {
             <Mail className="w-[15px] h-[15px]" />
           </Link>
         </div>
-        <p className="text-faint text-xs font-mono">© 2025</p>
+        <p className="text-faint text-xs font-mono">© 2026</p>
       </div>
     </aside>
   );
