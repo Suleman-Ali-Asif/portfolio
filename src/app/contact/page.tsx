@@ -2,7 +2,19 @@
 
 import { ArrowLeft, Mail, MapPin, Phone, Send } from "lucide-react";
 import Link from "next/link";
+import Script from "next/script";
 import { useState } from "react";
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "";
+
+declare global {
+  interface Window {
+    grecaptcha?: {
+      ready: (cb: () => void) => void;
+      execute: (siteKey: string, opts: { action: string }) => Promise<string>;
+    };
+  }
+}
 
 const CONTACT_INFO = [
   { icon: Mail, label: "Email", value: "a.suleman3757@gmail.com" },
@@ -32,10 +44,22 @@ export default function ContactPage() {
     setStatus("sending");
     setError(null);
     try {
+      if (!window.grecaptcha || !RECAPTCHA_SITE_KEY) {
+        throw new Error("reCAPTCHA failed to load. Please try again.");
+      }
+      const recaptchaToken = await new Promise<string>((resolve, reject) => {
+        window.grecaptcha!.ready(() => {
+          window
+            .grecaptcha!.execute(RECAPTCHA_SITE_KEY, { action: "contact" })
+            .then(resolve)
+            .catch(reject);
+        });
+      });
+
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ ...formData, recaptchaToken }),
       });
       if (!res.ok) {
         const data = await res.json();
@@ -56,6 +80,12 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-canvas text-bright">
+      {RECAPTCHA_SITE_KEY && (
+        <Script
+          src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
+          strategy="afterInteractive"
+        />
+      )}
       {/* Dot grid */}
       <div
         className="fixed inset-0 pointer-events-none"

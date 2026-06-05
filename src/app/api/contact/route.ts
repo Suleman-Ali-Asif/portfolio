@@ -1,25 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const RECAPTCHA_THRESHOLD = 0.5;
+
+async function verifyRecaptcha(token: string, ip?: string) {
+  const params = new URLSearchParams({
+    secret: process.env.RECAPTCHA_SECRET_KEY ?? "",
+    response: token,
+  });
+  if (ip) params.append("remoteip", ip);
+
+  const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: params,
+  });
+
+  return (await res.json()) as {
+    success: boolean;
+    score?: number;
+    action?: string;
+    "error-codes"?: string[];
+  };
+}
 
 export async function POST(req: NextRequest) {
-  const { name, email, subject, message } = await req.json();
+  const { name, email, subject, message, recaptchaToken } = await req.json();
 
   if (!name || !email || !subject || !message) {
     return NextResponse.json({ error: "All fields are required." }, { status: 400 });
   }
 
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD,
-    },
-  });
+  if (!recaptchaToken) {
+    return NextResponse.json({ error: "reCAPTCHA verification missing." }, { status: 400 });
+  }
 
-  await transporter.sendMail({
-    from: `"${name}" <${process.env.GMAIL_USER}>`,
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+  const verification = await verifyRecaptcha(recaptchaToken, ip);
+
+  if (!verification.success || (verification.score ?? 0) < RECAPTCHA_THRESHOLD) {
+    return NextResponse.json(
+      { error: "reCAPTCHA verification failed." },
+      { status: 400 },
+    );
+  }
+
+  const { error } = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL ?? "Portfolio <onboarding@resend.dev>",
     replyTo: email,
-    to: "a.suleman3757@gmail.com",
+    to: process.env.CONTACT_TO_EMAIL ?? "a.suleman3757@gmail.com",
     subject: `[Portfolio] ${subject}`,
     text: `From: ${name} <${email}>\n\n${message}`,
     html: `
@@ -29,6 +60,10 @@ export async function POST(req: NextRequest) {
       <p style="white-space:pre-wrap">${message}</p>
     `,
   });
+
+  if (error) {
+    return NextResponse.json({ error: "Failed to send message." }, { status: 502 });
+  }
 
   return NextResponse.json({ ok: true });
 }
