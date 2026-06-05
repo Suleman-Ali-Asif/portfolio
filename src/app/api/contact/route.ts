@@ -39,30 +39,20 @@ export async function POST(req: NextRequest) {
 
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
   const verification = await verifyRecaptcha(recaptchaToken, ip);
-  console.log("[contact] reCAPTCHA verification:", JSON.stringify(verification));
 
   if (!verification.success || (verification.score ?? 0) < RECAPTCHA_THRESHOLD) {
-    console.warn("[contact] reCAPTCHA rejected", {
-      success: verification.success,
-      score: verification.score,
-      errorCodes: verification["error-codes"],
-    });
     return NextResponse.json(
       { error: "reCAPTCHA verification failed." },
       { status: 400 },
     );
   }
 
-  const from = process.env.RESEND_FROM_EMAIL ?? "Portfolio <onboarding@resend.dev>";
-  const to = process.env.CONTACT_TO_EMAIL ?? "a.suleman3757@gmail.com";
-  console.log("[contact] sending via Resend", {
-    from,
-    to,
-    replyTo: email,
-    hasApiKey: Boolean(process.env.RESEND_API_KEY),
-  });
+  // Strip any wrapping quotes — Vercel's env UI keeps them literal (unlike dotenv).
+  const unquote = (v?: string) => v?.trim().replace(/^["']|["']$/g, "");
+  const from = unquote(process.env.RESEND_FROM_EMAIL) || "Portfolio <onboarding@resend.dev>";
+  const to = unquote(process.env.CONTACT_TO_EMAIL) || "a.suleman3757@gmail.com";
 
-  const { data, error } = await resend.emails.send({
+  const { error } = await resend.emails.send({
     from,
     replyTo: email,
     to,
@@ -77,10 +67,8 @@ export async function POST(req: NextRequest) {
   });
 
   if (error) {
-    console.error("[contact] Resend error:", JSON.stringify(error));
     return NextResponse.json({ error: "Failed to send message." }, { status: 502 });
   }
 
-  console.log("[contact] Resend success:", JSON.stringify(data));
   return NextResponse.json({ ok: true });
 }
