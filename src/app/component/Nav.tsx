@@ -1,90 +1,53 @@
+"use client";
+
 import Link from "next/link";
-import { Mail } from "lucide-react";
-import { FaGithub } from "react-icons/fa";
 import { NAV } from "../utils/constants";
+import LocalTime from "./LocalTime";
+import ThemeToggle from "./ThemeToggle";
 
-function Nav({ activeSection }: { activeSection: string }) {
+interface NavProps {
+  /** id of the section currently in view; omit on pages without sections */
+  activeSection?: string;
+}
+
+export default function Nav({ activeSection }: NavProps) {
   return (
-    <aside className="lg:sticky lg:top-0 lg:h-screen lg:w-[300px] xl:w-[340px] flex-shrink-0 flex flex-col justify-between px-8 lg:px-10 pt-12 pb-10 border-r border-edge">
-      {/* Identity + nav */}
-      <div className="space-y-10">
-        <div>
-          {/* Monogram */}
-          <div className="inline-flex items-center justify-center w-9 h-9 border border-edge mb-8 font-mono">
-            <span className="text-secondary text-xs tracking-wider">SA</span>
-          </div>
-
-          <h1 className="text-xl font-semibold text-bright tracking-tight leading-snug">
+    <header className="sticky top-0 z-30 bg-bg/90 supports-[backdrop-filter]:bg-bg/75 supports-[backdrop-filter]:backdrop-blur-md">
+      <div className="mx-auto flex h-14 max-w-[1040px] items-center justify-between gap-4 px-5 sm:px-8">
+        <div className="flex items-baseline gap-3">
+          <Link href="/" className="whitespace-nowrap font-display text-[15px] font-semibold tracking-tight text-text">
             Suleman Ali
-          </h1>
-          <p className="text-muted text-xs mt-1 font-mono">
-            Full-Stack Engineer
-          </p>
-          <p className="text-label text-xs mt-0.5 font-mono">
-            3+ yrs · Lahore, PK
-          </p>
+          </Link>
+          <span className="hidden items-baseline gap-1.5 text-[12.5px] text-muted sm:inline-flex">
+            <span>Lahore</span>
+            <LocalTime />
+          </span>
         </div>
 
-        <p className="text-body text-sm leading-relaxed max-w-[220px]">
-          APIs, platforms, and the web UIs on top of them. Backend-leaning,
-          full-stack in practice.
-        </p>
-
-        {/* Navigation */}
-        <nav className="space-y-1">
+        <nav aria-label="Primary" className="flex items-center gap-0.5 sm:gap-1">
           {NAV.map(({ label, id }) => {
             const isActive = activeSection === id;
             return (
               <a
                 key={id}
-                href={`#${id}`}
-                className="flex items-center gap-3 py-2 transition-colors duration-200"
+                href={`/#${id}`}
+                aria-current={isActive ? "location" : undefined}
+                className={`px-1.5 py-2 text-[13.5px] transition-colors duration-200 sm:px-2.5 sm:text-[14px] ${
+                  isActive ? "text-text" : "text-muted hover:text-text"
+                }`}
               >
-                <span
-                  className={`block h-px transition-all duration-300 ${isActive ? "bg-accent" : "bg-edge"}`}
-                  style={{ width: isActive ? "2rem" : "1rem" }}
-                />
-                <span className={`text-xs font-mono transition-colors duration-200 ${isActive ? "text-accent" : "text-muted"}`}>
-                  {label}
-                </span>
+                {label}
               </a>
             );
           })}
+          <span className="ml-1">
+            <ThemeToggle />
+          </span>
         </nav>
       </div>
-
-      {/* Socials + copyright */}
-      <div>
-        <div className="flex items-center gap-5 mb-4">
-          <a
-            href="https://github.com/Suleman-Ali-Asif"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="GitHub"
-            className="text-label hover:text-accent transition-colors duration-200"
-          >
-            <FaGithub size={15} />
-          </a>
-          <Link
-            href="/contact"
-            aria-label="Contact"
-            className="text-label hover:text-accent transition-colors duration-200"
-          >
-            <Mail className="w-[15px] h-[15px]" />
-          </Link>
-        </div>
-        <a
-          href="/resume.pdf"
-          download="Suleman_Ali_Resume.pdf"
-          className="flex items-center justify-between w-full font-mono text-xs text-canvas bg-accent hover:bg-accent-dim px-4 py-3 transition-colors duration-200 mb-5"
-        >
-          <span className="font-semibold tracking-wide">Download Résumé</span>
-          <span className="text-sm">↓</span>
-        </a>
-        <p className="text-faint text-xs font-mono">© 2026</p>
+      <div className="mx-auto max-w-[1040px] px-5 sm:px-8">
+        <div className="h-px bg-border" />
       </div>
-    </aside>
+    </header>
   );
 }
-
-export default Nav;

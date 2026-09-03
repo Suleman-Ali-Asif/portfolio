@@ -1,59 +1,147 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
-  --font-mono:
-    "JetBrains Mono", ui-monospace, "Cascadia Code", "Fira Mono", monospace;
+@custom-variant dark (&:where(.dark, .dark *));
 
-  /* ── Palette — available as text-*, bg-*, border-* Tailwind utilities ── */
-  --color-canvas:     #111114;   /* near-black, barely cool — creates contrast with warm text */
-  --color-surface:    #191818;   /* panel surfaces */
-  --color-edge:       #272522;   /* visible borders, warm tint */
-  --color-edge-soft:  #1f1d1b;   /* subtle dividers */
-  --color-accent:     #c8a870;   /* warm brass/gold — clear contrast from text, not AI orange */
-  --color-accent-dim: #a68854;   /* hover state */
-  --color-bright:     #f0ece4;   /* warm off-white — primary text */
-  --color-body:       #978c82;   /* warm gray — body copy (5.7:1 on canvas, 5.4:1 on surface) */
-  --color-muted:      #887e74;   /* warm mid-gray — secondary text (4.7:1 on canvas, 4.5:1 on surface) */
-  --color-label:      #847970;   /* warm dim — meta labels (4.4:1 on canvas) */
-  --color-faint:      #c8c0b4;   /* warm light — subtle text */
-  --color-hover:      #161412;   /* hover background */
-  --color-secondary:  #8e8480;   /* dim UI elements (5.5:1 on canvas, 4.9:1 on surface — AA pass) */
+/* ── Semantic tokens ─────────────────────────────────────────────────────────
+   Near-monochrome. Warm-neutral paper in light, soft black in dark. One indigo
+   accent, reserved for links, selection and the diagram highlight — never for
+   filled panels. Token names are shared with SystemDesignVisualizer. */
+
+:root {
+  --bg:             #f7f7f5;
+  --surface:        #fdfdfc;
+  --surface-2:      #efefec;
+  --surface-3:      #e6e6e2;
+  --border:         #e2e2de;
+  --border-strong:  #c9c9c3;
+
+  --primary:        #4d4bc4;
+  --primary-strong: #3b39a8;
+  --primary-soft:   #e9e8fa;
+  --primary-on:     #ffffff;
+
+  --text:           #17171a;
+  --text-body:      #46464d;
+  --text-muted:     #6f6f78;
+  --text-faint:     #a3a3aa;
+
+  --success:        #3f9c6b;
+  --danger:         #c2434f;
+
+  --scrim:          rgba(23, 23, 26, 0.5);
+  color-scheme: light;
+}
+
+.dark {
+  --bg:             #0e0e10;
+  --surface:        #141416;
+  --surface-2:      #1b1b1e;
+  --surface-3:      #232327;
+  --border:         #25252a;
+  --border-strong:  #37373d;
+
+  --primary:        #a9a6ff;
+  --primary-strong: #c1bfff;
+  --primary-soft:   #22213a;
+  --primary-on:     #0e0e10;
+
+  --text:           #ececea;
+  --text-body:      #b3b3b6;
+  --text-muted:     #82828a;
+  --text-faint:     #56565d;
+
+  --success:        #6fc394;
+  --danger:         #e07a84;
+
+  --scrim:          rgba(0, 0, 0, 0.62);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-display: var(--font-bricolage), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-serif:   var(--font-instrument-serif), "Iowan Old Style", Georgia, serif;
+  --font-mono:    var(--font-jetbrains), ui-monospace, "Cascadia Code", "Fira Mono", monospace;
+
+  --color-bg:             var(--bg);
+  --color-surface:        var(--surface);
+  --color-surface-2:      var(--surface-2);
+  --color-surface-3:      var(--surface-3);
+  --color-border:         var(--border);
+  --color-border-strong:  var(--border-strong);
+
+  --color-primary:        var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-primary-soft:   var(--primary-soft);
+  --color-primary-on:     var(--primary-on);
+
+  --color-text:           var(--text);
+  --color-body:           var(--text-body);
+  --color-muted:          var(--text-muted);
+  --color-faint:          var(--text-faint);
+
+  --color-success:        var(--success);
+  --color-danger:         var(--danger);
 }
 
 html {
   scroll-behavior: smooth;
-}
-
-/* Hide native cursor everywhere — custom cursor handles it */
-*, *::before, *::after {
-  cursor: none !important;
+  scroll-padding-top: 5rem;
 }
 
 body {
-  background-color: var(--color-canvas);
-  color: var(--color-bright);
+  background-color: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "ss01", "cv11";
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 4px;
+/* Text link: hairline underline that darkens on hover. */
+.link {
+  color: var(--text);
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+.link:hover { text-decoration-color: var(--text); }
+
+.link-muted {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--border);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color 0.2s ease, color 0.2s ease;
 }
-::-webkit-scrollbar-thumb {
-  background: #272522;
-  border-radius: 2px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #332f2b;
+.link-muted:hover { color: var(--text); text-decoration-color: var(--text); }
+
+/* Focus ring: visible for keyboard, quiet for mouse */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
-/* Selection */
 ::selection {
-  background: rgba(200, 168, 112, 0.18);
-  color: #f0ece4;
+  background: var(--primary-soft);
+  color: var(--text);
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

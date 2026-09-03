@@ -1,13 +1,28 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Poppins } from "next/font/google";
-import CursorOrb from "./component/CursorOrb";
+import { Bricolage_Grotesque, Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import ThemeProvider from "./component/ThemeProvider";
 import "./globals.css";
 
-const poppins = Poppins({
+const bricolage = Bricolage_Grotesque({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-poppins",
-  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-bricolage",
+  weight: ["500", "600", "700"],
+});
+
+const instrument = Instrument_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-instrument",
+  weight: ["400", "500", "600"],
+});
+
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-instrument-serif",
+  weight: "400",
+  style: ["italic"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
@@ -80,12 +95,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${poppins.variable} ${jetbrainsMono.variable} antialiased`}
+        className={`${bricolage.variable} ${instrument.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <CursorOrb />
-
-        {children}
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );

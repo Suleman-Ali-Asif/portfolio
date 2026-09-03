@@ -1,9 +1,10 @@
 "use client";
 
-import { ArrowLeft, Mail, MapPin, Phone, Send } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Script from "next/script";
 import { useState } from "react";
+import Nav from "../component/Nav";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "";
 
@@ -17,27 +18,24 @@ declare global {
 }
 
 const CONTACT_INFO = [
-  { icon: Mail, label: "Email", value: "a.suleman3757@gmail.com" },
-  { icon: Phone, label: "Phone", value: "+92 321 6611645" },
-  { icon: MapPin, label: "Location", value: "Lahore, PK" },
+  { label: "Email",    value: "a.suleman3757@gmail.com", href: "mailto:a.suleman3757@gmail.com" },
+  { label: "Phone",    value: "+92 321 6611645",         href: "tel:+923216611645" },
+  { label: "Location", value: "Lahore, Pakistan (UTC+5)" },
 ];
 
+const FIELD_CLASS =
+  "w-full rounded-md border border-border-strong bg-surface px-3.5 py-3 text-[15.5px] text-text placeholder:text-faint transition-colors duration-200 hover:border-text-muted focus:border-text focus:outline-none";
+
 export default function ContactPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-
-  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -69,117 +67,106 @@ export default function ContactPage() {
       setStatus("sent");
       setTimeout(() => setStatus("idle"), 5000);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Failed to send. Please try again.",
-      );
+      setError(err instanceof Error ? err.message : "Failed to send. Please try again.");
       setStatus("idle");
     }
   };
 
   return (
-    <div className="min-h-screen bg-canvas text-bright">
+    <div className="min-h-dvh bg-bg text-text">
       {RECAPTCHA_SITE_KEY && (
         <Script
           src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
           strategy="afterInteractive"
         />
       )}
-      {/* Dot grid */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-        }}
-      />
 
-      <div className="relative max-w-[1000px] mx-auto px-6 sm:px-10 lg:px-16 py-14">
-        {/* Back link */}
+      <Nav activeSection="contact" />
+
+      <main className="mx-auto max-w-[1040px] px-5 py-12 sm:px-8 sm:py-16">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 font-mono text-secondary hover:text-muted text-xs transition-colors duration-200 mb-16"
+          className="link-muted inline-flex items-center gap-1.5 text-[14px]"
         >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          Back
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          Back to home
         </Link>
 
-        {/* Header */}
-        <div className="mb-16">
-          <p className="font-mono text-label text-[10px] tracking-[0.25em] uppercase mb-5">
-            Contact
-          </p>
-          <h1 className="text-5xl lg:text-6xl font-bold text-bright tracking-tight leading-tight">
-            Say hello.
-          </h1>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 lg:gap-20">
-          {/* Left: info */}
-          <div className="lg:col-span-2 space-y-10">
-            <p className="text-label text-sm leading-relaxed">
-              I&apos;m available for freelance projects and open to full-time
-              opportunities. I typically respond within 24 hours.
+        <div className="mt-10 grid gap-12 lg:grid-cols-[340px_minmax(0,600px)] lg:gap-20">
+          {/* Left: intro + details */}
+          <div>
+            <h1 className="font-display text-[clamp(2rem,4vw,2.8rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-text">
+              Contact
+            </h1>
+            <p className="mt-5 max-w-[420px] text-[16px] leading-[1.6] text-body">
+              For freelance work, full-time roles, or questions about any of the
+              projects. I reply within a day.
             </p>
 
-            <div className="space-y-7 pt-8 border-t border-edge">
-              {CONTACT_INFO.map(({ icon: Icon, label, value }) => (
-                <div key={label} className="flex items-start gap-4">
-                  <Icon className="w-3.5 h-3.5 text-secondary mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="font-mono text-label text-[10px] uppercase tracking-[0.18em] mb-1">
-                      {label}
-                    </p>
-                    {label === "Email" ? (
+            <dl className="mt-10 divide-y divide-border border-t border-border">
+              {CONTACT_INFO.map(({ label, value, href }) => (
+                <div key={label} className="grid grid-cols-[88px_1fr] gap-3 py-4">
+                  <dt className="text-[13.5px] text-muted">{label}</dt>
+                  <dd className="min-w-0 text-[14.5px] text-text">
+                    {href ? (
                       <a
-                        href={`mailto:${value}`}
-                        className="text-muted text-sm"
+                        href={href}
+                        className="link break-all"
                       >
                         {value}
                       </a>
                     ) : (
-                      <p className="text-muted text-sm">{value}</p>
+                      value
                     )}
-                  </div>
+                  </dd>
                 </div>
               ))}
-            </div>
+            </dl>
           </div>
 
           {/* Right: form */}
-          <form onSubmit={handleSubmit} className="lg:col-span-3 space-y-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              {(["name", "email"] as const).map((field) => (
-                <div key={field} className="space-y-2">
-                  <label
-                    htmlFor={field}
-                    className="block font-mono text-label text-[10px] uppercase tracking-[0.2em]"
-                  >
-                    {field === "name" ? "Name" : "Email"}
-                  </label>
-                  <input
-                    id={field}
-                    type={field === "email" ? "email" : "text"}
-                    name={field}
-                    value={formData[field]}
-                    onChange={handleInputChange}
-                    required
-                    placeholder={
-                      field === "name" ? "Your name" : "you@example.com"
-                    }
-                    className="w-full bg-transparent border-b border-edge py-3 text-faint text-sm placeholder:text-secondary focus:outline-none focus:border-accent transition-colors duration-200"
-                  />
-                </div>
-              ))}
+          <form
+            onSubmit={handleSubmit}
+            className=""
+            noValidate={false}
+          >
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label htmlFor="name" className="mb-2 block text-[14px] text-text">
+                  Name
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  name="name"
+                  autoComplete="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="Your name"
+                  className={FIELD_CLASS}
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="mb-2 block text-[14px] text-text">
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  autoComplete="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  placeholder="you@example.com"
+                  className={FIELD_CLASS}
+                />
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="subject"
-                className="block font-mono text-label text-[10px] uppercase tracking-[0.2em]"
-              >
+            <div className="mt-5">
+              <label htmlFor="subject" className="mb-2 block text-[14px] text-text">
                 Subject
               </label>
               <input
@@ -189,16 +176,13 @@ export default function ContactPage() {
                 value={formData.subject}
                 onChange={handleInputChange}
                 required
-                placeholder="What's this about?"
-                className="w-full bg-transparent border-b border-edge py-3 text-faint text-sm placeholder:text-secondary focus:outline-none focus:border-accent transition-colors duration-200"
+                placeholder="Subject"
+                className={FIELD_CLASS}
               />
             </div>
 
-            <div className="space-y-2">
-              <label
-                htmlFor="message"
-                className="block font-mono text-label text-[10px] uppercase tracking-[0.2em]"
-              >
+            <div className="mt-5">
+              <label htmlFor="message" className="mb-2 block text-[14px] text-text">
                 Message
               </label>
               <textarea
@@ -208,40 +192,35 @@ export default function ContactPage() {
                 onChange={handleInputChange}
                 required
                 rows={6}
-                placeholder="Tell me about your project..."
-                className="w-full bg-transparent border-b border-edge py-3 text-faint text-sm placeholder:text-secondary focus:outline-none focus:border-accent transition-colors duration-200 resize-none"
+                placeholder="What you are building and when you need it"
+                className={`${FIELD_CLASS} resize-y min-h-[140px]`}
               />
             </div>
 
-            <div className="flex items-center gap-6 pt-2">
+            <div className="mt-7 flex flex-wrap items-center gap-4">
               <button
                 type="submit"
                 disabled={status !== "idle"}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-accent text-canvas text-sm font-semibold hover:bg-accent-dim disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-200"
+                className="inline-flex h-11 items-center rounded-md bg-text px-5 text-[15px] font-medium text-bg transition-opacity duration-200 hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
-                {status === "sending" && "Sending..."}
-                {status === "sent" && "Sent!"}
-                {status === "idle" && (
-                  <>
-                    Send message
-                    <Send className="w-3.5 h-3.5" />
-                  </>
-                )}
+                {status === "sending" && "Sending…"}
+                {status === "sent" && "Sent"}
+                {status === "idle" && "Send message"}
               </button>
 
-              {status === "sent" && (
-                <span className="font-mono text-secondary text-xs">
-                  I&apos;ll be in touch soon.
-                </span>
-              )}
+              <p role="status" aria-live="polite" className="text-[13.5px] text-muted">
+                {status === "sent" && "Message sent."}
+              </p>
             </div>
 
             {error && (
-              <p className="font-mono text-red-400 text-xs mt-2">{error}</p>
+              <p role="alert" className="mt-4 border-l-2 border-danger pl-3 text-[14px] text-danger">
+                {error}
+              </p>
             )}
           </form>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

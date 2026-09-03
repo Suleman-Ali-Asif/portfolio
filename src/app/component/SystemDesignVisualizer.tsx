@@ -104,21 +104,21 @@ export default function SystemDesignVisualizer({ architecture }: { architecture:
 
   return (
     <div>
-      <p className="text-body text-sm leading-relaxed mb-5 max-w-xl">
+      <p className="text-body text-[14.5px] leading-relaxed mb-5 max-w-xl">
         {architecture.summary}
       </p>
 
-      <div className="border border-edge bg-surface overflow-hidden">
+      <div className="border border-border bg-surface rounded-2xl overflow-hidden">
         <svg viewBox="0 0 620 240" className="w-full" style={{ display: "block" }}>
           <defs>
             <pattern id="sdv-dots" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
-              <circle cx="10" cy="10" r="0.5" fill="rgba(255,255,255,0.015)" />
+              <circle cx="10" cy="10" r="0.7" style={{ fill: "var(--border)" }} />
             </pattern>
             <marker id="sdv-arr-fwd" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
-              <path d="M0,0 L0,6 L7,3 z" fill="#272522" />
+              <path d="M0,0 L0,6 L7,3 z" style={{ fill: "var(--border-strong)" }} />
             </marker>
             <marker id="sdv-arr-bwd" markerWidth="7" markerHeight="7" refX="1" refY="3" orient="auto-start-reverse">
-              <path d="M7,3 L0,0 L0,6 z" fill="#272522" />
+              <path d="M7,3 L0,0 L0,6 z" style={{ fill: "var(--border-strong)" }} />
             </marker>
           </defs>
 
@@ -146,7 +146,7 @@ export default function SystemDesignVisualizer({ architecture }: { architecture:
                 />
                 <line
                   x1={x1} y1={y1} x2={x2} y2={y2}
-                  stroke={lit ? "#363028" : "#201e1b"}
+                  style={{ stroke: lit ? "var(--text-faint)" : "var(--border-strong)" }}
                   strokeWidth={lit ? 1.5 : 1}
                   strokeDasharray={lit ? undefined : "5 4"}
                   markerEnd="url(#sdv-arr-fwd)"
@@ -165,9 +165,8 @@ export default function SystemDesignVisualizer({ architecture }: { architecture:
                   y={isVert ? my      : my - 7}
                   textAnchor={isVert ? "start" : "middle"}
                   fontSize="8"
-                  fill={lit ? "#4a3e30" : "#272522"}
-                  fontFamily="JetBrains Mono, monospace"
-                  style={{ userSelect: "none" }}
+                  style={{ fill: lit ? "var(--text-muted)" : "var(--text-faint)", userSelect: "none" }}
+                  fontFamily="var(--font-jetbrains), monospace"
                 >
                   {edge.label}
                 </text>
@@ -196,26 +195,23 @@ export default function SystemDesignVisualizer({ architecture }: { architecture:
                 <rect
                   x={node.x - NW / 2} y={node.y - NH / 2}
                   width={NW} height={NH} rx="2"
-                  fill={isHov ? c.fill : "#191818"}
-                  stroke={isHov ? c.stroke : "#272522"}
+                  style={{ fill: isHov ? c.fill : "var(--surface-2)", stroke: isHov ? c.stroke : "var(--border-strong)" }}
                   strokeWidth={isHov ? 1.5 : 1}
                 />
                 <NodeIcon type={node.type} cx={node.x} cy={node.y - 7} />
                 <text
                   x={node.x} y={node.y + 12}
                   textAnchor="middle" fontSize="9" fontWeight="600"
-                  fill={isHov ? c.stroke : "#5c5450"}
-                  fontFamily="Poppins, sans-serif"
-                  style={{ userSelect: "none" }}
+                  style={{ fill: isHov ? c.stroke : "var(--text-body)", userSelect: "none" }}
+                  fontFamily="var(--font-instrument), sans-serif"
                 >
                   {node.label}
                 </text>
                 <text
                   x={node.x} y={node.y + 22}
                   textAnchor="middle" fontSize="7"
-                  fill={isHov ? "#464240" : "#272522"}
-                  fontFamily="JetBrains Mono, monospace"
-                  style={{ userSelect: "none" }}
+                  style={{ fill: isHov ? "var(--text-muted)" : "var(--text-faint)", userSelect: "none" }}
+                  fontFamily="var(--font-jetbrains), monospace"
                 >
                   {node.sublabel}
                 </text>
@@ -234,13 +230,13 @@ export default function SystemDesignVisualizer({ architecture }: { architecture:
           </span>
         ))}
         <span className="flex items-center gap-2 ml-auto">
-          <span className="w-5 h-2 rounded-full inline-block bg-accent" />
+          <span className="w-5 h-2 rounded-full inline-block bg-primary" />
           <span className="font-mono text-[10px] text-muted">animated data flow</span>
         </span>
       </div>
 
       {/* Info panel */}
-      <div className="border border-edge bg-surface p-4 mt-2" style={{ minHeight: 72 }}>
+      <div className="border border-border bg-surface rounded-2xl p-4 mt-3" style={{ minHeight: 72 }}>
         {infoText ? (
           <>
             {hNodeDef && (

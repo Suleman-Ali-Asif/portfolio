@@ -27,6 +27,8 @@ export interface ProjectItem {
   slug: string;
   name: string;
   image: string;
+  /** optional dark-theme variant of `image` */
+  imageDark?: string;
   description: string;
   stack: string[];
   url?: string;

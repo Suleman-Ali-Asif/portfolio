@@ -3,10 +3,12 @@
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import ModeSelector from "./component/ModeSelector";
+import CopyEmail from "./component/CopyEmail";
+import LocalTime from "./component/LocalTime";
 import Nav from "./component/Nav";
 import ProjectDetail from "./component/ProjectDetail";
-import Terminal from "./component/Terminal";
+import SystemBlocks from "./component/SystemBlocks";
+import WorkIndex from "./component/WorkIndex";
 import { AppContextProvider, useApp } from "./context/AppContext";
 import { EXPERTISE, getConstants, NAV } from "./utils/constants";
 
@@ -32,6 +34,7 @@ function useActiveSection(ids: string[]): string {
         }
       }
     };
+    handler();
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, [ids]);
@@ -39,266 +42,195 @@ function useActiveSection(ids: string[]): string {
   return active;
 }
 
-// ─── Mode toggle button ───────────────────────────────────────────────────────
+// ─── Small pieces ─────────────────────────────────────────────────────────────
 
-function ModeToggle() {
-  const { mode, toggleMode } = useApp();
+const EMAIL = "a.suleman3757@gmail.com";
 
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === "`") {
-        e.preventDefault();
-        toggleMode();
-      }
-    };
-    window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [toggleMode]);
-
+function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <button
-      onClick={toggleMode}
-      title={mode === "gui" ? "Open Terminal (Ctrl+Shift+`)" : "Open GUI (Ctrl+Shift+`)"}
-      className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-3.5 py-2 font-mono border border-edge bg-surface text-accent hover:border-accent hover:bg-hover transition-all duration-150 text-[11px]"
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="link inline-flex items-center gap-1 text-[15px]"
     >
-      {mode === "gui" ? (
-        <>
-          <span className="opacity-70">&gt;_</span>
-          <span>Terminal</span>
-        </>
-      ) : (
-        <>
-          <span className="opacity-70">⬚</span>
-          <span>GUI</span>
-        </>
-      )}
-    </button>
+      {children}
+      <ArrowUpRight className="h-3.5 w-3.5 text-muted" aria-hidden="true" />
+    </a>
   );
 }
 
-// ─── GUI layout ───────────────────────────────────────────────────────────────
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="font-display text-[clamp(1.5rem,2.6vw,1.85rem)] font-semibold tracking-tight text-text">
+      {children}
+    </h2>
+  );
+}
 
-function GUILayout() {
-  const { openProject } = useApp();
-  const [mounted, setMounted] = useState(false);
+// ─── Page ─────────────────────────────────────────────────────────────────────
+
+function PortfolioInner() {
+  const { openProject, openArch, selectedSlug, view } = useApp();
   const { projects } = getConstants();
   const sectionIds = NAV.map((n) => n.id);
   const activeSection = useActiveSection(sectionIds);
 
-  useEffect(() => { setMounted(true); }, []);
+  // Deep link: /?project=<slug>[&view=arch] opens a project on load.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get("project");
+    if (!slug || !projects.some((p) => p.slug === slug)) return;
+    if (params.get("view") === "arch") openArch(slug);
+    else openProject(slug);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  if (!mounted) return <div className="min-h-screen bg-canvas" />;
+  // Keep the URL in sync so an open project can be shared.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (selectedSlug) {
+      url.searchParams.set("project", selectedSlug);
+      if (view === "arch") url.searchParams.set("view", "arch");
+      else url.searchParams.delete("view");
+    } else {
+      url.searchParams.delete("project");
+      url.searchParams.delete("view");
+    }
+    window.history.replaceState(null, "", url.pathname + url.search + url.hash);
+  }, [selectedSlug, view]);
 
   return (
-    <div className="min-h-screen bg-canvas text-bright">
-      {/* Dot grid texture */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          backgroundImage: "radial-gradient(circle, rgba(255,255,255,0.02) 1px, transparent 1px)",
-          backgroundSize: "28px 28px",
-        }}
-      />
+    <div className="min-h-dvh bg-bg text-text">
+      <Nav activeSection={activeSection} />
 
-      <div className="relative flex flex-col lg:flex-row min-h-screen max-w-[1280px] mx-auto">
-        <Nav activeSection={activeSection} />
+      <main className="mx-auto max-w-[1040px] px-5 sm:px-8">
 
-        <main className="flex-1 min-w-0">
-
-          {/* ── ABOUT ── */}
-          <section id="about" className="px-8 lg:px-16 pt-14 lg:pt-24 pb-24 border-b border-edge">
-            <p className="text-label font-mono text-[10px] tracking-[0.25em] uppercase mb-12">
-              01 / About
+        {/* ── ABOUT ── */}
+        <section id="about" className="scroll-mt-20 pt-16 sm:pt-24">
+          <div className="max-w-[680px]">
+            <p className="text-[15px] text-muted">
+              Software engineer at Jfreaks Software Solutions, Lahore.
             </p>
 
-            <h2 className="text-[clamp(2.8rem,6vw,5rem)] font-bold text-bright tracking-tight leading-[1.06] mb-8">
-              I build software
-              <br />
-              <span className="text-label">that ships.</span>
-            </h2>
+            <h1 className="mt-5 font-display text-[clamp(2.4rem,5vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.03em] text-text">
+              Whole systems,{" "}
+              <em className="block font-serif font-normal italic text-text sm:inline">one engineer.</em>
+            </h1>
 
-            <p className="text-body text-base lg:text-lg leading-relaxed max-w-[520px] mb-16">
-              Software engineer specialising in backend systems — REST APIs, data pipelines,
-              payment integrations, and browser extensions. Building production products at
-              Jfreaks Software Solutions. I work across the full stack with a preference for
-              the backend.
+            <p className="mt-7 text-[17px] leading-[1.65] text-body">
+              I take a product from architecture to deployment: the API, the data
+              loaders, the payments, the dashboards. Seven services behind Commodity
+              Price API, three browser extensions for TweetStorm.ai, a full platform
+              migration for Netus.ai. Most of the work is server-side.
             </p>
 
-            {/* Stat grid */}
-            <div className="grid grid-cols-3 border border-edge divide-x divide-edge mb-20">
-              {[
-                { v: "3+",   l: "Years exp." },
-                { v: "4",    l: "Products shipped" },
-                { v: "10+",  l: "Technologies" },
-              ].map(({ v, l }) => (
-                <div key={l} className="px-5 py-5 sm:px-7 sm:py-6">
-                  <div className="text-2xl font-bold font-mono text-accent mb-1.5 tabular-nums">
-                    {v}
-                  </div>
-                  <div className="text-muted font-mono text-[10px] uppercase tracking-widest leading-tight">
-                    {l}
-                  </div>
-                </div>
-              ))}
+            <div className="mt-8 flex flex-wrap items-baseline gap-x-6 gap-y-3">
+              <ExternalLink href="https://github.com/Suleman-Ali-Asif">GitHub</ExternalLink>
+              <ExternalLink href="https://linkedin.com/in/suleman-ali-asif">LinkedIn</ExternalLink>
+              <a href="/resume.pdf" download="Suleman_Ali_Resume.pdf" className="link text-[15px]">
+                Résumé (PDF)
+              </a>
+              <CopyEmail email={EMAIL} />
             </div>
+          </div>
 
-            {/* Expertise */}
-            <p className="text-label font-mono text-[10px] tracking-[0.25em] uppercase mb-6">
-              Expertise
-            </p>
-            <div className="divide-y divide-edge-soft">
+          <div className="mt-16 sm:mt-20">
+            <SystemBlocks />
+          </div>
+
+          {/* What I do */}
+          <div className="mt-20 max-w-[820px] sm:mt-24">
+            <SectionTitle>What I do</SectionTitle>
+            <dl className="mt-6 border-t border-border">
               {EXPERTISE.map(({ area, stack, desc }) => (
                 <div
                   key={area}
-                  className="group grid sm:grid-cols-[190px_1fr] gap-y-2 gap-x-8 py-5 hover:bg-hover -mx-8 lg:-mx-16 px-8 lg:px-16 transition-colors duration-200"
+                  className="grid gap-2 border-b border-border py-6 md:grid-cols-[240px_1fr] md:gap-10"
                 >
-                  <span className="text-accent text-sm font-medium pt-0.5">
-                    {area}
-                  </span>
-                  <div>
-                    <p className="text-muted font-mono text-xs mb-1.5">{stack}</p>
-                    <p className="text-body text-sm">{desc}</p>
-                  </div>
+                  <dt>
+                    <span className="block font-display text-[17px] font-semibold tracking-tight text-text">
+                      {area}
+                    </span>
+                    <span className="mt-1.5 block font-mono text-[11.5px] leading-relaxed text-muted">
+                      {stack}
+                    </span>
+                  </dt>
+                  <dd className="max-w-[520px] text-[15.5px] leading-[1.65] text-body">{desc}</dd>
                 </div>
               ))}
-            </div>
-          </section>
+            </dl>
+          </div>
+        </section>
 
-          {/* ── WORK ── */}
-          <section id="work" className="px-8 lg:px-16 pt-20 pb-24 border-b border-edge">
-            <p className="text-label font-mono text-[10px] tracking-[0.25em] uppercase mb-12">
-              02 / Work
+        {/* ── WORK ── */}
+        <section id="work" className="scroll-mt-20 pt-24 sm:pt-32">
+          <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
+            <SectionTitle>Selected work</SectionTitle>
+            <p className="text-[14px] text-muted">
+              {projects.length} products, {projects.filter((p) => p.architecture).length} with architecture diagrams
             </p>
+          </div>
+          <WorkIndex projects={projects} onOpen={openProject} />
+        </section>
 
-            <div className="divide-y divide-edge-soft">
-              {projects.map((project, idx) => (
-                <div
-                  key={project.slug}
-                  onClick={() => openProject(project.slug)}
-                  className="group py-9 hover:bg-hover -mx-8 lg:-mx-16 px-8 lg:px-16 transition-colors duration-200 cursor-pointer"
-                >
-                  <div className="flex items-baseline justify-between gap-6 mb-4">
-                    <div className="flex items-baseline gap-4 min-w-0">
-                      <span className="text-faint font-mono text-xs tabular-nums flex-shrink-0">
-                        0{idx + 1}
-                      </span>
-                      <h3 className="text-bright font-semibold text-lg leading-snug truncate">
-                        {project.name}
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-3 flex-shrink-0">
-                      <span className="opacity-0 group-hover:opacity-100 font-mono text-[10px] text-muted transition-opacity duration-200">
-                        open →
-                      </span>
-                      {project.url && (
-                        <a
-                          href={project.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          aria-label={`Visit ${project.name}`}
-                          onClick={(e) => e.stopPropagation()}
-                          className="text-faint hover:text-accent opacity-0 group-hover:opacity-100 transition-all duration-200"
-                        >
-                          <ArrowUpRight className="w-4 h-4" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-
-                  <p className="text-body text-sm leading-relaxed mb-5 pl-10 max-w-[540px]">
-                    {project.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1.5 pl-10">
-                    {project.stack.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-muted font-mono text-[11px] border border-edge px-2 py-0.5 rounded-sm"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
+        {/* ── NOW ── */}
+        <section id="now" className="scroll-mt-20 pt-24 sm:pt-32">
+          <div className="max-w-[820px]">
+            <SectionTitle>Now</SectionTitle>
+            <dl className="mt-6 grid gap-x-10 gap-y-6 border-t border-border pt-6 sm:grid-cols-2">
+              {[
+                { k: "Working at", v: "Jfreaks Software Solutions, since 2023" },
+                { k: "Open to", v: "Freelance projects and full-time roles" },
+                { k: "Main stack", v: "Node.js, Go, Next.js, MySQL, MongoDB" },
+                { k: "Based in", v: <>Lahore, Pakistan · <LocalTime /> local (UTC+5)</> },
+              ].map(({ k, v }) => (
+                <div key={k} className="grid grid-cols-[110px_1fr] gap-4">
+                  <dt className="text-[14px] text-muted">{k}</dt>
+                  <dd className="text-[15.5px] leading-snug text-text">{v}</dd>
                 </div>
               ))}
-            </div>
-          </section>
+            </dl>
+            <p className="mt-6 font-mono text-[11.5px] text-faint">Updated September 2026</p>
+          </div>
+        </section>
 
-          {/* ── CONTACT ── */}
-          <section id="contact" className="px-8 lg:px-16 pt-20 pb-40">
-            <p className="text-label font-mono text-[10px] tracking-[0.25em] uppercase mb-12">
-              03 / Contact
+        {/* ── CONTACT ── */}
+        <section id="contact" className="scroll-mt-20 pt-24 pb-14 sm:pt-32">
+          <div className="max-w-[820px] border-t border-border pt-10">
+            <SectionTitle>Contact</SectionTitle>
+            <p className="mt-4 max-w-[520px] text-[16px] leading-[1.65] text-body">
+              Freelance projects and full-time roles. Email is the fastest way to reach me.
             </p>
-
-            <h2 className="text-[clamp(2.6rem,6vw,4.5rem)] font-bold text-bright tracking-tight leading-[1.06] mb-6">
-              Let&apos;s build
-              <br />
-              <span className="text-label">something real.</span>
-            </h2>
-            <p className="text-body text-base leading-relaxed max-w-sm mb-14">
-              Open to freelance projects, full-time roles, and interesting collaborations.
-              I reply within 24 hours.
-            </p>
-
-            <Link
-              href="/contact"
-              className="inline-flex items-center gap-2 px-7 py-3.5 bg-accent text-canvas text-sm font-semibold hover:bg-accent-dim transition-colors duration-200 mb-20"
-            >
-              Get in touch
-              <ArrowUpRight className="w-4 h-4" />
-            </Link>
-
-            <div className="border-t border-edge-soft pt-10">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-                <div className="flex items-center gap-6">
-                  {[
-                    { label: "GitHub",   href: "https://github.com/Suleman-Ali-Asif" },
-                    { label: "LinkedIn", href: "https://linkedin.com/in/suleman-ali-asif" },
-                  ].map(({ label, href }) => (
-                    <a
-                      key={label}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group inline-flex items-center gap-1.5 font-mono text-muted hover:text-bright text-sm transition-colors duration-200"
-                    >
-                      {label}
-                      <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                    </a>
-                  ))}
-                </div>
-
-                <div className="inline-flex items-center gap-2 font-mono text-muted text-[11px]">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-                  </span>
-                  Available for work
-                </div>
-              </div>
+            <div className="mt-8">
+              <CopyEmail email={EMAIL} size="lg" />
             </div>
-          </section>
-        </main>
-      </div>
+            <p className="mt-5 text-[15px] text-muted">
+              Or{" "}
+              <Link href="/contact" className="link">
+                use the contact form
+              </Link>
+              .
+            </p>
+          </div>
+
+          <footer className="mt-24 flex flex-col gap-4 border-t border-border pt-6 text-[13px] text-muted sm:flex-row sm:items-start sm:justify-between">
+            <p className="max-w-[520px] leading-relaxed">
+              Suleman Ali, Lahore. Set in Bricolage Grotesque and Instrument Sans. The
+              architecture diagrams are hand-laid SVG driven by the same data as the
+              case studies.
+            </p>
+            <div className="flex items-center gap-5">
+              <a href="https://github.com/Suleman-Ali-Asif" target="_blank" rel="noopener noreferrer" className="link-muted">GitHub</a>
+              <a href="https://linkedin.com/in/suleman-ali-asif" target="_blank" rel="noopener noreferrer" className="link-muted">LinkedIn</a>
+              <a href="/resume.pdf" download="Suleman_Ali_Resume.pdf" className="link-muted">Résumé</a>
+            </div>
+          </footer>
+        </section>
+      </main>
 
       <ProjectDetail />
     </div>
-  );
-}
-
-// ─── Root ─────────────────────────────────────────────────────────────────────
-
-function PortfolioInner() {
-  const { mode, isReady, hasChosenMode } = useApp();
-
-  if (!isReady) return <div className="min-h-screen bg-canvas" />;
-  if (!hasChosenMode) return <ModeSelector />;
-
-  return (
-    <>
-      {mode === "terminal" ? <Terminal /> : <GUILayout />}
-      <ModeToggle />
-    </>
   );
 }
 

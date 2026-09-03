@@ -61,7 +61,8 @@ const PROJECTS: ProjectItem[] = [
   {
     slug: "commodity-price-api",
     name: "Commodity Price API",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop",
+    image: "/commodity-light.png",
+    imageDark: "/commodity-dark.png",
     description:
       "Multi-app system serving real-time and delayed commodity price data for 130+ commodities via a tiered REST API. Led all applications from architecture to deployment.",
     stack: ["Node.js", "Next.js", "MongoDB", "Stripe", "Cron Jobs", "In-Memory Cache", "Ghost CMS"],
@@ -170,7 +171,8 @@ const PROJECTS: ProjectItem[] = [
   {
     slug: "tweetstorm-ai",
     name: "TweetStorm.ai",
-    image: "https://images.unsplash.com/photo-1611605698335-8b1569810432?w=600&h=400&fit=crop",
+    image: "/tweetstorm-light.png",
+    imageDark: "/tweetstorm-dark.png",
     description:
       "AI-powered Twitter/X productivity platform. Built browser extensions, Stripe payment integration, bookmarks management, and migrated the entire ORM from Prisma to Knex.",
     stack: ["Node.js", "MySQL", "Prisma → Knex", "Stripe", "Browser Extensions", "Plasmo", "OpenAI"],
@@ -274,7 +276,8 @@ const PROJECTS: ProjectItem[] = [
   {
     slug: "netus-ai",
     name: "Netus.ai",
-    image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=600&h=400&fit=crop",
+    image: "/netus-light.png",
+    imageDark: "/netus-dark.png",
     description:
       "AI content platform. Migrated the full site from WordPress to Astro, rebuilt newsletter delivery with Redis, integrated dual payment providers (Stripe + Creem.io), and built tooling in Go.",
     stack: ["Go", "Astro", "React", "MySQL", "Redis", "Stripe", "Creem.io", "Ghost CMS"],
@@ -378,7 +381,8 @@ const PROJECTS: ProjectItem[] = [
   {
     slug: "api-freaks",
     name: "API-Freaks",
-    image: "https://images.unsplash.com/photo-1557821552-17105176677c?w=600&h=400&fit=crop",
+    image: "/apifreaks-light.png",
+    imageDark: "/apifreaks-dark.png",
     description:
       "Developer resource hub connecting multiple API products (API-Geo, IP lookup, and others). Contributed UI components, frontend–backend integration, and a maintainer role system.",
     stack: ["Next.js", "React", "TypeScript", "SWR", "Tailwind CSS"],

@@ -8,24 +8,25 @@ export function getConstants(_theme?: string): { projects: ProjectItem[] } {
 
 export const NAV = [
   { label: "About", id: "about" },
-  { label: "Work",  id: "work"  },
+  { label: "Work", id: "work" },
+  { label: "Now", id: "now" },
   { label: "Contact", id: "contact" },
 ];
 
 export const EXPERTISE = [
   {
-    area: "Backend Engineering",
+    area: "Backend engineering",
     stack: "Node.js · Go · MySQL · MongoDB · Redis",
-    desc: "REST API design, data pipeline architecture, in-memory caching, and ORM-level query optimisation.",
+    desc: "Designed the in-memory read path that took Commodity Price API responses from 1–3 seconds to under 400 ms, and rewrote TweetStorm's data layer from Prisma to Knex.",
   },
   {
-    area: "Payments & Integrations",
-    stack: "Stripe · Creem.io · Ghost CMS · Browser Extensions",
-    desc: "Webhook-driven subscription management, tiered access control, and third-party platform integrations.",
+    area: "Payments and integrations",
+    stack: "Stripe · Creem.io · Ghost CMS · Browser extensions",
+    desc: "Webhook-driven subscriptions for three products, including tier changes and cancellations, plus extensions that inject into X's live UI.",
   },
   {
-    area: "Frontend & Tooling",
+    area: "Frontend and tooling",
     stack: "Next.js · Astro · React · Tailwind CSS · Plasmo",
-    desc: "Static site migrations, server-rendered UIs, and browser extension development injected into live platforms.",
+    desc: "Moved Netus.ai from WordPress to Astro, and build the dashboards and docs sites that sit on top of the APIs.",
   },
 ];
