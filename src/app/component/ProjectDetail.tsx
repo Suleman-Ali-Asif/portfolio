@@ -5,8 +5,9 @@ import { getConstants } from "@/app/utils/constants";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ArchThumb from "./ArchThumb";
+import Tile from "./Tile";
 import SystemDesignVisualizer from "./SystemDesignVisualizer";
 
 type Tab = "overview" | "arch";
@@ -21,7 +22,7 @@ function Label({ children }: { children: React.ReactNode }) {
 
 function BulletList({ items }: { items: string[] }) {
   return (
-    <ul className="max-w-[620px] list-disc space-y-2 pl-5 text-[15.5px] leading-[1.6] text-body marker:text-faint">
+    <ul className="max-w-[620px] list-disc space-y-2 pl-5 text-[16px] leading-[1.6] text-body marker:text-faint">
       {items.map((item, i) => (
         <li key={i}>{item}</li>
       ))}
@@ -36,22 +37,50 @@ export default function ProjectDetail() {
   const reduceMotion = useReducedMotion();
 
   const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const returnFocusTo = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     setActiveTab(view === "arch" ? "arch" : "overview");
   }, [view, selectedSlug]);
 
+  // Focus management: move focus into the dialog on open, trap Tab inside it,
+  // and hand focus back to whatever opened it on close.
   useEffect(() => {
     if (!selectedSlug) return;
+    returnFocusTo.current = document.activeElement as HTMLElement | null;
+    const focusTimer = window.setTimeout(() => closeRef.current?.focus(), 30);
+
     const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeProject();
+      if (e.key === "Escape") {
+        closeProject();
+        return;
+      }
+      if (e.key !== "Tab" || !panelRef.current) return;
+      const focusable = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+      if (e.shiftKey && (active === first || !panelRef.current.contains(active))) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && active === last) {
+        e.preventDefault();
+        first.focus();
+      }
     };
     window.addEventListener("keydown", handler);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
+      window.clearTimeout(focusTimer);
       window.removeEventListener("keydown", handler);
       document.body.style.overflow = prev;
+      returnFocusTo.current?.focus?.();
     };
   }, [selectedSlug, closeProject]);
 
@@ -75,6 +104,7 @@ export default function ProjectDetail() {
 
           <motion.div
             key="panel"
+            ref={panelRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="project-detail-title"
@@ -86,7 +116,7 @@ export default function ProjectDetail() {
                 ? { duration: 0.15 }
                 : { type: "spring", damping: 30, stiffness: 280, mass: 0.8 }
             }
-            className="fixed inset-y-0 right-0 z-50 flex w-full flex-col overflow-hidden bg-bg lg:w-[760px] lg:border-l lg:border-border"
+            className="fixed inset-y-0 right-0 z-50 flex w-full flex-col overflow-hidden bg-surface lg:w-[760px] lg:border-l lg:border-border"
           >
             {/* Header */}
             <div className="flex flex-shrink-0 items-center justify-between gap-4 border-b border-border px-5 py-4 sm:px-8">
@@ -104,7 +134,7 @@ export default function ProjectDetail() {
                       type="button"
                       aria-selected={selected}
                       onClick={() => setActiveTab(tab)}
-                      className={`px-3 py-1.5 text-[14px] transition-colors duration-200 cursor-pointer ${
+                      className={`px-3 py-1.5 text-[14px] transition-[color,opacity] duration-200 cursor-pointer active:opacity-60 ${
                         selected
                           ? "text-text underline decoration-text decoration-1 underline-offset-[6px]"
                           : "text-muted hover:text-text"
@@ -129,10 +159,11 @@ export default function ProjectDetail() {
                   </a>
                 )}
                 <button
+                  ref={closeRef}
                   type="button"
                   onClick={closeProject}
                   aria-label="Close project details"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-md text-muted transition-colors duration-200 hover:bg-surface-2 hover:text-text cursor-pointer"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-md text-muted transition-[color,background-color,transform] duration-200 hover:bg-surface-2 hover:text-text active:scale-95 cursor-pointer"
                 >
                   <X className="h-4.5 w-4.5" />
                 </button>
@@ -140,14 +171,14 @@ export default function ProjectDetail() {
             </div>
 
             {/* Body */}
-            <div className="flex-1 overflow-y-auto px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
-              <AnimatePresence mode="wait">
+            <div className="relative flex-1 overflow-y-auto px-5 py-8 sm:px-8 lg:px-10 lg:py-10">
+              <AnimatePresence mode="popLayout" initial={false}>
                 {activeTab === "overview" ? (
                   <motion.div
                     key="overview"
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.18 }}
                   >
                     <h2
@@ -156,7 +187,7 @@ export default function ProjectDetail() {
                     >
                       {project.name}
                     </h2>
-                    <p className="mt-3 max-w-[600px] text-[15.5px] leading-[1.6] text-body">
+                    <p className="mt-3 max-w-[600px] text-[16px] leading-[1.6] text-body">
                       {project.description}
                     </p>
 
@@ -180,13 +211,13 @@ export default function ProjectDetail() {
                     </div>
 
                     <p className="mt-5 font-mono text-[12px] leading-relaxed text-muted">
-                      {project.stack.join(" · ")}
+                      {project.stack.join(", ")}
                     </p>
 
                     {project.problem && (
                       <section className="mt-10 border-t border-border pt-8">
                         <Label>Problem</Label>
-                        <p className="max-w-[620px] text-[15.5px] leading-[1.6] text-body">{project.problem}</p>
+                        <p className="max-w-[620px] text-[16px] leading-[1.6] text-body">{project.problem}</p>
                       </section>
                     )}
 
@@ -217,7 +248,7 @@ export default function ProjectDetail() {
                           <Label>Request flow</Label>
                           <ol className="max-w-[620px] space-y-2.5">
                             {project.requestFlow.map((step, i) => (
-                              <li key={i} className="grid grid-cols-[24px_1fr] gap-2 text-[15.5px] leading-[1.6] text-body">
+                              <li key={i} className="grid grid-cols-[24px_1fr] gap-2 text-[16px] leading-[1.6] text-body">
                                 <span className="font-mono text-[12px] leading-[1.9] text-muted tabular-nums">
                                   {i + 1}.
                                 </span>
@@ -231,19 +262,19 @@ export default function ProjectDetail() {
                       {project.architecture && (
                         <section className="border-t border-border pt-8">
                           <Label>Architecture</Label>
-                          <div className="mb-5 rounded-lg border border-border bg-surface p-4">
+                          <Tile pad="sm" className="mb-5 bg-surface-2">
                             <ArchThumb architecture={project.architecture} className="mx-auto w-full max-w-[420px]" />
                             <p className="mt-3 text-center text-[12.5px] text-muted">
                               {project.architecture.nodes.length} components, {project.architecture.edges.length} connections
                             </p>
-                          </div>
-                          <p className="max-w-[620px] text-[15.5px] leading-[1.6] text-body">
+                          </Tile>
+                          <p className="max-w-[620px] text-[16px] leading-[1.6] text-body">
                             {project.architecture.summary}
                           </p>
                           <button
                             type="button"
                             onClick={() => setActiveTab("arch")}
-                            className="link mt-5 inline-flex cursor-pointer items-center gap-1 text-[15px]"
+                            className="link mt-5 inline-flex cursor-pointer items-center gap-1 text-[15px] active:opacity-60"
                           >
                             View the architecture diagram
                             <ArrowUpRight className="h-3.5 w-3.5 text-muted" aria-hidden="true" />
@@ -257,7 +288,7 @@ export default function ProjectDetail() {
                     key="arch"
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -6 }}
+                    exit={{ opacity: 0 }}
                     transition={{ duration: 0.18 }}
                   >
                     <h2
@@ -266,7 +297,10 @@ export default function ProjectDetail() {
                     >
                       {project.name} architecture
                     </h2>
-                    <SystemDesignVisualizer architecture={project.architecture} />
+                    {/* Below sm the diagram box scrolls sideways instead of shrinking to illegibility */}
+                    <div className="max-sm:[&_.overflow-hidden]:overflow-x-auto max-sm:[&_svg]:min-w-[620px]">
+                      <SystemDesignVisualizer architecture={project.architecture} />
+                    </div>
                   </motion.div>
                 ) : null}
               </AnimatePresence>

@@ -45,7 +45,7 @@ export default function CopyEmail({
       <button
         type="button"
         onClick={copy}
-        className="cursor-pointer font-mono text-[12px] text-muted transition-colors duration-200 hover:text-text"
+        className="cursor-pointer font-mono text-[12px] text-muted transition-[color,opacity] duration-200 hover:text-text active:opacity-60"
         aria-live="polite"
       >
         {copied ? "Copied" : "Copy"}

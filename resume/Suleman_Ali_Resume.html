@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Muhammad Suleman Ali Asif, Résumé</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 12mm 14mm 12mm 14mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+    font-size: 9.0pt; line-height: 1.32; color: #1a1a1a;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  a { color: inherit; text-decoration: none; }
+  header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; padding-bottom: 8px; border-bottom: 1px solid #1a1a1a; }
+  h1 { font-size: 19pt; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 2px; line-height: 1.1; }
+  .sub { font-size: 10pt; color: #444; margin: 0; }
+  .contact { text-align: right; font-size: 8.6pt; color: #333; line-height: 1.5; }
+  .contact div { white-space: nowrap; }
+  section { margin-top: 9px; }
+  h2 { font-size: 8.2pt; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #555; margin: 0 0 6px; padding-bottom: 3px; border-bottom: 1px solid #d9d9d9; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+  .row h3 { font-size: 10.4pt; font-weight: 600; margin: 0; }
+  .row .meta { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 8pt; color: #555; white-space: nowrap; }
+  .role { font-size: 9.4pt; color: #444; margin: 1px 0 4px; }
+  .summary { margin: 0; }
+  ul { margin: 0; padding-left: 13px; }
+  li { margin: 0 0 2px; padding-left: 1px; }
+  li::marker { color: #888; }
+  .proj { margin-top: 7px; }
+  .proj:first-of-type { margin-top: 0; }
+  .proj .lead { margin: 1px 0 3px; color: #333; }
+  .stack { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 7.8pt; color: #555; margin: 3px 0 0; }
+  .grid { display: grid; grid-template-columns: 82px 1fr; row-gap: 3px; column-gap: 10px; }
+  .grid dt { color: #555; }
+  .grid dd { margin: 0; }
+  .two { display: grid; grid-template-columns: 1.35fr 1fr; gap: 10px 22px; }
+  .break { break-before: page; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Muhammad Suleman Ali Asif</h1>
+    <p class="sub">Full-stack engineer, mostly backend. Lahore, Pakistan.</p>
+  </div>
+  <div class="contact">
+    <div><a href="mailto:a.suleman3757@gmail.com">a.suleman3757@gmail.com</a> &nbsp;|&nbsp; +92 321 6611645</div>
+    <div><a href="https://sulemanaliasif.com">sulemanaliasif.com</a> &nbsp;|&nbsp; <a href="https://github.com/Suleman-Ali-Asif">github.com/Suleman-Ali-Asif</a></div>
+    <div><a href="https://linkedin.com/in/suleman-ali-asif">linkedin.com/in/suleman-ali-asif</a></div>
+  </div>
+</header>
+
+<section>
+  <h2>Summary</h2>
+  <p class="summary">
+    Two years shipping and running production SaaS at Jfreaks Software Solutions: a change-detection service designed from the first commit,
+    a commodity price API grown from three services to twelve, and the scheduling, bookmark and billing systems behind two AI writing products. Comfortable owning the whole path: schema, queue, worker, webhook handlers, the API in front, the deploy, and the
+    runbook. TypeScript and Go.
+  </p>
+</section>
+
+<section>
+  <h2>Experience</h2>
+
+  <div class="row"><h3>Jfreaks Software Solutions</h3><span class="meta">Jul 2024 to present, Lahore</span></div>
+  <p class="role">Full-stack engineer</p>
+
+  <div class="proj">
+    <div class="row"><h3 style="font-size:9.8pt">Verid, verid.dev</h3><span class="meta">May 2026 to present, 166 of 265 commits</span></div>
+    <p class="lead">Web change detection for developers: six extractors (CSS, XPath, JSONPath, regex, full page, LLM prompt to JSON), a predicate engine, signed webhook delivery. Designed and built from the initial commit; a second engineer joined for marketing pages.</p>
+    <ul>
+      <li>Architected an npm-workspaces monorepo: Next.js 16 app (SSR dashboard, REST API, billing), BullMQ worker, Express admin, Nextra docs, eight shared packages. About 65k lines of TypeScript.</li>
+      <li>Scheduler claims due monitors every 30 s with <code>SELECT … FOR UPDATE SKIP LOCKED</code> and bumps <code>next_run_at</code> in the same transaction; Postgres is the only scheduling source of truth and Redis is disposable.</li>
+      <li>Three-tier fetcher (plain HTTP, pooled stealth Chromium, residential proxy with sticky geo-matched sessions), automatic escalation when a JS-rendered page returns empty fields, and a Redis circuit breaker for search-engine URLs with cooldowns doubling from 15 min to 6 h.</li>
+      <li>Stripe-style webhook delivery: per-monitor secrets encrypted with AES-256-GCM, <code>t=…,v1=…</code> HMAC-SHA256 header, five-minute replay tolerance, six-step retry ladder (0, 5m, 15m, 30m, 1h, 2h), dead-letter email, one-click replay. Slack, Discord and email senders alongside.</li>
+      <li>Replaced a third-party auth library with in-house auth: scrypt (N=2^15), DB-backed 30-day rolling sessions, Google OAuth with PKCE, single-use verification tokens, soft delete with 90-day lockout, hashed and scoped API keys with rotation grace.</li>
+      <li>Creem billing with HMAC-verified webhooks and order-independent tier reconciliation; tier caps in one typed module shared by API, worker, pricing page and dashboard; Lua sliding-window rate limiter per tier.</li>
+      <li>Production ownership: Docker images from GitHub Actions to ghcr.io, SSH deploys to two self-hosted VPS with the database reachable only over WireGuard, migrations before worker restart, nightly pg_dump to Backblaze B2, Sentry, TLS-expiry alerting runbook after a real outage.</li>
+      <li>Published <code>@verid.dev/sdk</code> (zero dependencies), a hand-maintained OpenAPI 3.1 spec, a Postman collection, and a public playground that reuses the production extraction pipeline.</li>
+    </ul>
+    <p class="stack">TypeScript, Next.js 16, React 19, BullMQ, PostgreSQL, Knex, Prisma, Redis, Cloudflare R2, Creem, Resend, Docker, GitHub Actions</p>
+  </div>
+
+  <div class="proj">
+    <div class="row"><h3 style="font-size:9.8pt">Commodity Price API, commoditypriceapi.com</h3><span class="meta">Sep 2024 to present, 812 commits across 12 repos</span></div>
+    <p class="lead">Paid REST API for live and historical commodity prices. Took over an existing codebase in September 2024 and became its primary maintainer, including the Next.js 16 marketing site, dashboard and free tools site.</p>
+    <ul>
+      <li>Designed the loader-to-API hot path: a one-minute cron fetches Capital.com and Seeking Alpha in two batched requests, dedupes by source preference, writes only changed symbols to MongoDB, and pushes the full rate map into the API's in-memory map over a JWT-authenticated POST. MongoDB is the lazy fallback; a ten-minute snapshot map serves lower tiers.</li>
+      <li>One-second gold and silver bid/ask fetchers with exponential backoff (1 s to 30 s), 5 s per-call timeout, auto-stop and alert after five failures; dedicated XAU and XAG endpoints with gram, tola and carat breakdowns.</li>
+      <li>Write-behind metering: usage counted in memory after the response finishes, flushed every five minutes with one <code>$inc</code> bulkWrite and put back on failure; a per-day usage ledger with a one-year retention powers the dashboard heatmap.</li>
+      <li>Stripe Checkout and Billing Portal, idempotent webhooks (unique event ID plus status check), seven-day trials with self-service extension (max three) and an admin approval route, nightly trial-expiry and yearly-plan reset crons, account deletion.</li>
+      <li>Added official-source loaders: EIA (17 symbols, hourly manifest-gated), USDA AMS (16 symbols, 15-minute publish and correction feed), EU electricity (70 EUR symbols from ENTSO-E XML, energy-charts and Eurostat JSON-stat). All upsert OHLC rows on commodity and date with staleness checks and throttled alerting.</li>
+      <li>Licence enforcement in code: responses without a CC BY licence or with the wrong zone or unit fail closed; global 15 s request pacer with 429 backoff capped at 120 s; attribution added to the symbols page and Terms.</li>
+      <li>Published the official MCP server <code>@commoditypriceapi/mcp</code>: eight tools mapping one-to-one to v2 endpoints, stdio transport, non-throwing error results with per-status guidance.</li>
+      </ul>
+    <p class="stack">TypeScript, Express, Mongoose, MongoDB time-series, Passport, zod, node-cron, Stripe, Next.js 16, MCP SDK, Docker, pm2, Gitea Actions</p>
+  </div>
+
+  <div class="proj">
+    <div class="row"><h3 style="font-size:9.8pt">TweetStorm.ai</h3><span class="meta">Aug 2024 to present, 604 of 1002 app commits</span></div>
+    <p class="lead">AI writing, thread scheduling, bookmark management and bulk actions for X, delivered as a Next.js app plus three browser extensions.</p>
+    <ul>
+      <li>Built the thread scheduler end to end (single-author branch, 43 commits, 197 files): plan quotas, per-account posting slots and timezones, presigned media uploads to Wasabi, BullMQ delayed jobs with three attempts and 60 s exponential backoff.</li>
+      <li>Wrote the standalone publish worker: atomic claim via conditional UPDATE with a 45 s stale-lock window, per-tweet and per-media resume on stored X IDs, terminal versus retryable error classification, one-time usage refund, append-only audit trail; X token refresh serialised per account with a Redis <code>SET NX PX</code> lock.</li>
+      <li>Built the bookmark manager solo (109 commits, 191 files): folders to depth three, tags, smart folders, archive and read states, per-handle dedupe, plan-gated storage, X API backup sync; more than twenty REST routes.</li>
+      <li>Authored the Bookmark Manager extension for Chrome (MV3) and Firefox (MV2) in Plasmo: intercepts X's GraphQL bookmark mutations via webRequest, replays with refreshed cookies and CSRF, paginates with 500 ms spacing, batches twenty per POST, bridges to the web app via externally_connectable and postMessage.</li>
+      <li>Led the Prisma-to-Knex query migration (Jan 2025) while keeping Prisma for schema and migrations; authored 29 of 59 migrations.</li>
+      <li>Owned Stripe lifecycle handlers across two independent plan families (31 of 36 commits in the webhook module): nine events, receipts, duplicate-insert race handling, credit and usage resets on renewal, upgrade and cancel.</li>
+      </ul>
+    <p class="stack">TypeScript, Next.js 16, React 19, MySQL 8, Knex, Prisma, BullMQ, Redis, X API v2, Plasmo, Stripe, Wasabi S3, Docker, GitHub Actions</p>
+  </div>
+
+  <div class="proj">
+    <div class="row"><h3 style="font-size:9.8pt">Netus.ai</h3><span class="meta">Jul 2025 to Mar 2026, shared team codebase</span></div>
+    <p class="lead">AI writing platform on a Go and MySQL backend with an Astro marketing site. Owned billing, credits, the public tools API and side services.</p>
+    <ul>
+      <li>Rebuilt Stripe billing around webhooks (checkout, subscription updated and deleted, invoice paid and failed) with a unique constraint and upsert on the Stripe subscription ID; extended the flows to Creem past-due and renewal events.</li>
+      <li>Replaced hard-coded plan mappings with a plans table keyed by Stripe price and Creem product IDs; wrote the Go backfill tool that assigned plans to existing subscriptions from live provider data.</li>
+      <li>Built pay-as-you-go credit packs end to end: Stripe Checkout in payment mode with tiered pricing, six-month expiry, unique session key, and a layered deduction engine (one-off, subscription, personal) used by every tool. React purchase UI and Astro page.</li>
+      <li>Introduced Redis with a Lua-scripted atomic daily and per-minute rate limiter, and opened a dozen tools to anonymous visitors under per-tool daily quotas.</li>
+      <li>Dunning emails keyed by invoice in Redis (21-day TTL, attempts 1, 3, 5, 7) with a billing portal link, cleared on renewal. Kubernetes CronJob in Go that resets free-tier credits monthly in batches of 1,000.</li>
+      <li>Newsletter service in Go (chi, go-redis, SES): HMAC-verified Ghost webhooks, weekly scheduler feeding a BRPOP worker, per-subscriber HTML with HMAC unsubscribe tokens, batches of 500 under a 14 per second ceiling. Also extracted a Go video-download service around yt-dlp with a 500 MB streaming cap and shared guest-token auth.</li>
+      <li>Led the Astro 5 marketing site (400 of 790 commits): product and pricing pages, cookie consent, support form, JSON-LD, public React tool islands; migrated the blog from WordPress REST to Ghost with SSR and wrote a post-build HTML-to-Markdown mirror with llms.txt.</li>
+    </ul>
+    <p class="stack">Go, gorilla/mux, chi, MySQL, Redis, Stripe, Creem, AWS SES, Zeptomail, Ghost, Astro 5, React, Kubernetes (DigitalOcean), Gitea Actions</p>
+  </div>
+
+  <div class="proj" style="margin-top:10px">
+    <div class="row"><h3>Apexion</h3><span class="meta">Jun 2023 to Aug 2023, remote</span></div>
+    <p class="role">Backend developer intern</p>
+    <ul>
+      <li>Refactored Node.js services and REST endpoints with a focus on query handling and memory use; worked in an agile team on sprint planning and CI/CD.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="two">
+    <div>
+      <h2>Skills</h2>
+      <dl class="grid">
+        <dt>Languages</dt><dd>TypeScript, JavaScript, Go, SQL</dd>
+        <dt>Backend</dt><dd>Node.js, Express, Next.js, Go (chi, gorilla/mux), BullMQ, node-cron, REST, OpenAPI, MCP</dd>
+        <dt>Data</dt><dd>PostgreSQL, MySQL, MongoDB, Redis (Lua), Knex, Prisma, Mongoose</dd>
+        <dt>Integrations</dt><dd>Stripe, Creem, X API v2, OAuth 2.0 PKCE, OpenAI, Azure OpenAI, Anthropic, Resend, SES, Ghost</dd>
+        <dt>Frontend</dt><dd>React 19, Next.js 16, Astro 5, Tailwind v4, Plasmo (Chrome MV3, Firefox MV2)</dd>
+        <dt>Ops</dt><dd>Docker, GitHub and Gitea Actions, Kubernetes, pm2, nginx, WireGuard, Sentry, R2, Wasabi, B2</dd>
+      </dl>
+    </div>
+    <div>
+      <h2>Education</h2>
+      <div class="row"><h3 style="font-size:9.8pt">Air University, Islamabad</h3><span class="meta">2020 to 2024</span></div>
+      <p class="role">BS Software Engineering</p>
+      
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

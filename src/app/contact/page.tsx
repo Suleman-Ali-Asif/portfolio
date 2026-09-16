@@ -5,6 +5,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { useState } from "react";
 import Nav from "../component/Nav";
+import Tile from "../component/Tile";
 
 const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "";
 
@@ -24,7 +25,7 @@ const CONTACT_INFO = [
 ];
 
 const FIELD_CLASS =
-  "w-full rounded-md border border-border-strong bg-surface px-3.5 py-3 text-[15.5px] text-text placeholder:text-faint transition-colors duration-200 hover:border-text-muted focus:border-text focus:outline-none";
+  "w-full rounded-md border border-border-strong bg-surface px-3.5 py-3 text-[15.5px] text-text placeholder:text-muted transition-colors duration-200 hover:border-muted focus:border-text focus:outline-none";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
@@ -74,6 +75,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-dvh bg-bg text-text">
+      <a href="#main" className="skip-link">Skip to content</a>
       {RECAPTCHA_SITE_KEY && (
         <Script
           src={`https://www.google.com/recaptcha/api.js?render=${RECAPTCHA_SITE_KEY}`}
@@ -83,7 +85,8 @@ export default function ContactPage() {
 
       <Nav activeSection="contact" />
 
-      <main className="mx-auto max-w-[1040px] px-5 py-12 sm:px-8 sm:py-16">
+      <main id="main" className="mx-auto max-w-[1440px] px-3 pb-3 pt-3 sm:px-4 sm:pb-4 sm:pt-4">
+        <Tile pad="lg">
         <Link
           href="/"
           className="link-muted inline-flex items-center gap-1.5 text-[14px]"
@@ -201,7 +204,7 @@ export default function ContactPage() {
               <button
                 type="submit"
                 disabled={status !== "idle"}
-                className="inline-flex h-11 items-center rounded-md bg-text px-5 text-[15px] font-medium text-bg transition-opacity duration-200 hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+                className="inline-flex h-11 items-center rounded-md bg-text px-5 text-[15px] font-medium text-bg transition-[opacity,transform] duration-200 hover:opacity-85 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
               >
                 {status === "sending" && "Sending…"}
                 {status === "sent" && "Sent"}
@@ -220,6 +223,7 @@ export default function ContactPage() {
             )}
           </form>
         </div>
+        </Tile>
       </main>
     </div>
   );

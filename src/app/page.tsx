@@ -1,16 +1,19 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CopyEmail from "./component/CopyEmail";
 import LocalTime from "./component/LocalTime";
 import Nav from "./component/Nav";
 import ProjectDetail from "./component/ProjectDetail";
-import SystemBlocks from "./component/SystemBlocks";
-import WorkIndex from "./component/WorkIndex";
+import Tile, { Bento } from "./component/Tile";
+import { Screenshot } from "./component/WorkGrid";
 import { AppContextProvider, useApp } from "./context/AppContext";
-import { EXPERTISE, getConstants, NAV } from "./utils/constants";
+import type { ProjectItem } from "./types";
+import { EDUCATION, EXPERIENCE, getConstants, NAV, STACK } from "./utils/constants";
 
 // ─── Active section hook ──────────────────────────────────────────────────────
 
@@ -18,25 +21,28 @@ function useActiveSection(ids: string[]): string {
   const [active, setActive] = useState(ids[0]);
 
   useEffect(() => {
-    const handler = () => {
-      const scrollY = window.scrollY;
-      if (scrollY < 80) { setActive(ids[0]); return; }
+    const sections = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
+    if (sections.length === 0) return;
 
-      const atBottom =
-        scrollY + window.innerHeight >= document.documentElement.scrollHeight - 60;
-      if (atBottom) { setActive(ids[ids.length - 1]); return; }
-
-      for (const id of [...ids].reverse()) {
-        const el = document.getElementById(id);
-        if (el && el.getBoundingClientRect().top <= 160) {
-          setActive(id);
-          return;
+    // A section is "current" while it overlaps a band from 15% to 50% down the
+    // viewport. When several overlap, the lowest one on the page wins, so the
+    // section scrolling into view takes over as it passes the band.
+    const inBand = new Set<string>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) inBand.add(e.target.id);
+          else inBand.delete(e.target.id);
         }
-      }
-    };
-    handler();
-    window.addEventListener("scroll", handler, { passive: true });
-    return () => window.removeEventListener("scroll", handler);
+        const current = [...ids].reverse().find((id) => inBand.has(id));
+        if (current) setActive(current);
+      },
+      { rootMargin: "-15% 0px -50% 0px", threshold: 0 },
+    );
+    sections.forEach((el) => io.observe(el));
+    return () => io.disconnect();
   }, [ids]);
 
   return active;
@@ -45,26 +51,109 @@ function useActiveSection(ids: string[]): string {
 // ─── Small pieces ─────────────────────────────────────────────────────────────
 
 const EMAIL = "a.suleman3757@gmail.com";
+const GITHUB = "https://github.com/Suleman-Ali-Asif";
+const LINKEDIN = "https://linkedin.com/in/suleman-ali-asif";
 
-function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
+/** Small caption in a tile's top-left corner. */
+function Caption({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <p className={`text-[13px] leading-snug text-muted ${className}`}>{children}</p>;
+}
+
+/** Hairline mark for the headline tile: three orbits and the bodies on them. */
+function OrbitMark({ className = "" }: { className?: string }) {
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="link inline-flex items-center gap-1 text-[15px]"
+    <svg
+      viewBox="0 0 120 120"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1"
     >
-      {children}
-      <ArrowUpRight className="h-3.5 w-3.5 text-muted" aria-hidden="true" />
-    </a>
+      <circle cx="60" cy="60" r="56" />
+      <circle cx="60" cy="60" r="38" />
+      <circle cx="60" cy="60" r="20" />
+      <circle cx="60" cy="60" r="3" fill="currentColor" stroke="none" />
+      <circle cx="98" cy="60" r="2.5" fill="currentColor" stroke="none" />
+      <circle cx="33" cy="33" r="2.5" fill="currentColor" stroke="none" />
+      <circle cx="60" cy="116" r="2.5" fill="currentColor" stroke="none" />
+      <circle cx="78" cy="49" r="2" fill="currentColor" stroke="none" />
+    </svg>
   );
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
+const capitalize = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
+const uncapitalize = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
+
+const ROW_ARROW =
+  "h-3.5 w-3.5 flex-shrink-0 self-center text-faint transition-all duration-200 group-hover/row:-translate-y-0.5 group-hover/row:translate-x-0.5 group-hover/row:text-text group-focus-visible/row:text-text";
+
+/**
+ * Work index tile: a preview on top that crossfades to the hovered row, then
+ * every product as a hairline row. Clicking anything opens the case study.
+ */
+function WorkIndexTile({
+  projects,
+  onOpen,
+  className = "",
+}: {
+  projects: ProjectItem[];
+  onOpen: (slug: string) => void;
+  className?: string;
+}) {
+  const reduce = useReducedMotion();
+  const [hovered, setHovered] = useState<string | null>(null);
+  const active = projects.find((p) => p.slug === hovered) ?? projects[0];
+
   return (
-    <h2 className="font-display text-[clamp(1.5rem,2.6vw,1.85rem)] font-semibold tracking-tight text-text">
-      {children}
-    </h2>
+    <Tile as="section" id="work" className={`scroll-mt-4 ${className}`} aria-labelledby="work-title">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 id="work-title" className="font-display text-[20px] font-semibold tracking-tight text-text">
+          Selected work
+        </h2>
+        <Caption>{projects.length} products</Caption>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onOpen(active.slug)}
+        aria-label={`${active.name}: open case study`}
+        className="group/preview relative mt-5 block aspect-[1440/675] w-full cursor-pointer overflow-hidden rounded-2xl bg-surface-2"
+      >
+        <AnimatePresence initial={false} mode="popLayout">
+          <motion.div
+            key={active.slug}
+            className="absolute inset-0"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 1.03 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Screenshot project={active} sizes="(min-width: 1024px) 420px, 100vw" />
+          </motion.div>
+        </AnimatePresence>
+      </button>
+
+      <ul className="mt-5 divide-y divide-border" onMouseLeave={() => setHovered(null)}>
+        {projects.map((p) => (
+          <li key={p.slug} onMouseEnter={() => setHovered(p.slug)} onFocus={() => setHovered(p.slug)}>
+            <button
+              type="button"
+              onClick={() => onOpen(p.slug)}
+              className="group/row flex w-full cursor-pointer items-baseline justify-between gap-4 py-3.5 text-left"
+            >
+              <span className="min-w-0">
+                <span className="block font-display text-[17px] font-semibold leading-tight tracking-tight text-text">
+                  {p.name}
+                </span>
+                {p.role && <span className="mt-0.5 block truncate text-[13px] text-muted">{p.role}</span>}
+              </span>
+              <ArrowUpRight className={ROW_ARROW} aria-hidden="true" />
+            </button>
+          </li>
+        ))}
+      </ul>
+    </Tile>
   );
 }
 
@@ -73,8 +162,9 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 function PortfolioInner() {
   const { openProject, openArch, selectedSlug, view } = useApp();
   const { projects } = getConstants();
-  const sectionIds = NAV.map((n) => n.id);
+  const sectionIds = useMemo(() => NAV.map((n) => n.id), []);
   const activeSection = useActiveSection(sectionIds);
+  const [jfreaks, ...restExperience] = EXPERIENCE;
 
   // Deep link: /?project=<slug>[&view=arch] opens a project on load.
   useEffect(() => {
@@ -102,131 +192,237 @@ function PortfolioInner() {
 
   return (
     <div className="min-h-dvh bg-bg text-text">
+      <a href="#main" className="skip-link">Skip to content</a>
       <Nav activeSection={activeSection} />
 
-      <main className="mx-auto max-w-[1040px] px-5 sm:px-8">
+      <main id="main" className="mx-auto max-w-[1440px] px-3 pb-3 pt-3 sm:px-4 sm:pb-4 sm:pt-4">
 
-        {/* ── ABOUT ── */}
-        <section id="about" className="scroll-mt-20 pt-16 sm:pt-24">
-          <div className="max-w-[680px]">
-            <p className="text-[15px] text-muted">
-              Software engineer at Jfreaks Software Solutions, Lahore.
-            </p>
+        {/* ── FOLD: intro and portrait/contact on the left; experience and education on the right ── */}
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-12">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-8 sm:gap-4 lg:col-span-8 lg:grid-rows-[minmax(0,1.3fr)_minmax(0,1fr)]">
 
-            <h1 className="mt-5 font-display text-[clamp(2.4rem,5vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.03em] text-text">
-              Whole systems,{" "}
-              <em className="block font-serif font-normal italic text-text sm:inline">one engineer.</em>
-            </h1>
+            {/* Intro: headline and about in one tall tile */}
+            <Tile
+              as="section"
+              id="about"
+              aria-labelledby="headline"
+              className="scroll-mt-4 min-h-[520px] sm:col-span-5 sm:row-span-2 lg:min-h-0"
+            >
+              <h1
+                id="headline"
+                className="font-display text-[clamp(2.4rem,4.2vw,3.6rem)] font-semibold leading-[1.02] tracking-[-0.03em] text-text"
+              >
+                Whole systems,{" "}
+                <em className="block font-serif font-normal italic text-text">one engineer.</em>
+              </h1>
+              <div className="mt-4 flex items-start justify-between gap-6">
+                <Caption className="max-w-[60%]">
+                  Full-stack engineer at Jfreaks Software Solutions, Lahore. Mostly backend.
+                </Caption>
+                <OrbitMark className="h-20 w-20 flex-shrink-0 text-text sm:h-24 sm:w-24" />
+              </div>
+              <div className="mt-auto border-t border-border pt-5">
+                <div className="flex items-baseline gap-2 text-[13px] text-muted">
+                  <span>Lahore</span>
+                  <LocalTime />
+                  <span>UTC+5</span>
+                </div>
+                <p className="mt-3 max-w-[560px] text-[16px] leading-[1.6] text-body">
+                  I build the parts of a product that have to keep working when nobody is
+                  looking: schedulers, queues, payment webhooks, data loaders, the API in
+                  front of them, and the deploy that ships it. Four products below, from a
+                  change-detection service I designed from the first commit to a commodity
+                  price API I took over and grew to twelve services.
+                </p>
+              </div>
+            </Tile>
 
-            <p className="mt-7 text-[17px] leading-[1.65] text-body">
-              I take a product from architecture to deployment: the API, the data
-              loaders, the payments, the dashboards. Seven services behind Commodity
-              Price API, three browser extensions for TweetStorm.ai, a full platform
-              migration for Netus.ai. Most of the work is server-side.
-            </p>
-
-            <div className="mt-8 flex flex-wrap items-baseline gap-x-6 gap-y-3">
-              <ExternalLink href="https://github.com/Suleman-Ali-Asif">GitHub</ExternalLink>
-              <ExternalLink href="https://linkedin.com/in/suleman-ali-asif">LinkedIn</ExternalLink>
-              <a href="/resume.pdf" download="Suleman_Ali_Resume.pdf" className="link text-[15px]">
-                Résumé (PDF)
-              </a>
-              <CopyEmail email={EMAIL} />
+            {/* Portrait */}
+            <div className="relative min-h-[360px] overflow-hidden rounded-[22px] bg-surface-2 sm:col-span-3 lg:min-h-0">
+              <Image
+                src="/hero.png"
+                alt="Suleman Ali"
+                fill
+                priority
+                sizes="(min-width: 1024px) 340px, (min-width: 640px) 37vw, 100vw"
+                className="object-contain object-bottom grayscale"
+              />
             </div>
+
+            {/* Contact */}
+            <Tile
+              as="a"
+              href="/contact"
+              id="contact"
+              inverted
+              interactive
+              className="scroll-mt-4 min-h-[300px] sm:col-span-3 lg:min-h-0"
+              aria-label="Contact: open the contact form"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <p className="max-w-[200px] text-[13px] leading-snug opacity-70">
+                  Open to freelance projects and full-time roles. I reply within a day.
+                </p>
+                <ArrowUpRight
+                  className="h-6 w-6 flex-shrink-0 transition-transform duration-200 group-hover/tile:-translate-y-0.5 group-hover/tile:translate-x-0.5"
+                  aria-hidden="true"
+                />
+              </div>
+              <p className="mt-auto pt-10 font-display text-[clamp(2rem,3.4vw,2.9rem)] font-semibold leading-none tracking-[-0.03em]">
+                Contact <em className="font-serif font-normal italic">me</em>
+              </p>
+              <p className="mt-3 font-mono text-[12px] opacity-70">{EMAIL}</p>
+            </Tile>
           </div>
 
-          <div className="mt-16 sm:mt-20">
-            <SystemBlocks />
-          </div>
+          {/* Right column: experience over education */}
+          <div className="grid grid-rows-[minmax(0,1fr)_auto] gap-3 sm:gap-4 lg:col-span-4">
+            <Tile as="section" id="experience" aria-labelledby="experience-title" className="scroll-mt-4 min-h-[360px] lg:min-h-0">
+              <div className="flex items-baseline justify-between gap-4">
+                <h2 id="experience-title" className="font-display text-[20px] font-semibold tracking-tight text-text">
+                  Experience
+                </h2>
+                <Caption>{EXPERIENCE.length} roles</Caption>
+              </div>
+              <ol className="mt-4 flex flex-1 flex-col divide-y divide-border">
+                {EXPERIENCE.map(({ period, org, role }) => (
+                  <li key={org} className="flex flex-1 flex-col justify-center py-5 first:pt-4 last:pb-0">
+                    <p className="font-mono text-[12px] text-muted">{period}</p>
+                    <h3 className="mt-2 font-display text-[18px] font-semibold leading-snug tracking-tight text-text">
+                      {org}
+                    </h3>
+                    <p className="mt-1 text-[14px] text-muted">{role}</p>
+                  </li>
+                ))}
+              </ol>
+            </Tile>
 
-          {/* What I do */}
-          <div className="mt-20 max-w-[820px] sm:mt-24">
-            <SectionTitle>What I do</SectionTitle>
-            <dl className="mt-6 border-t border-border">
-              {EXPERTISE.map(({ area, stack, desc }) => (
-                <div
-                  key={area}
-                  className="grid gap-2 border-b border-border py-6 md:grid-cols-[240px_1fr] md:gap-10"
-                >
-                  <dt>
-                    <span className="block font-display text-[17px] font-semibold tracking-tight text-text">
-                      {area}
-                    </span>
-                    <span className="mt-1.5 block font-mono text-[11.5px] leading-relaxed text-muted">
-                      {stack}
-                    </span>
-                  </dt>
-                  <dd className="max-w-[520px] text-[15.5px] leading-[1.65] text-body">{desc}</dd>
+            <Tile as="section" aria-labelledby="education-title">
+              <h2 id="education-title" className="font-display text-[20px] font-semibold tracking-tight text-text">
+                Education
+              </h2>
+              <ul className="mt-4 divide-y divide-border">
+                {EDUCATION.map(({ period, org, role }) => (
+                  <li key={org} className="pt-4">
+                    <p className="font-mono text-[12px] text-muted">{period}</p>
+                    <h3 className="mt-2 font-display text-[18px] font-semibold leading-snug tracking-tight text-text">
+                      {org}
+                    </h3>
+                    <p className="mt-1 text-[14px] text-muted">{role}</p>
+                  </li>
+                ))}
+              </ul>
+            </Tile>
+          </div>
+        </div>
+
+        {/* ── WORK + OWNERSHIP ── */}
+        <Bento className="mt-3 sm:mt-4">
+          <WorkIndexTile projects={projects} onOpen={openProject} className="sm:col-span-6 lg:col-span-4" />
+
+          {/* What I owned on each product at Jfreaks, two by two */}
+          <Tile as="section" aria-labelledby="owned-title" className="sm:col-span-6 lg:col-span-8">
+            <div className="flex items-baseline justify-between gap-4">
+              <h2 id="owned-title" className="font-display text-[20px] font-semibold tracking-tight text-text">
+                What I owned at {jfreaks.org}
+              </h2>
+              <Caption>{jfreaks.period}</Caption>
+            </div>
+            <dl className="mt-6 grid gap-x-8 gap-y-7 sm:grid-cols-2">
+              {jfreaks.points.map((pt) => {
+                const i = pt.indexOf(": ");
+                const name = i === -1 ? "" : pt.slice(0, i);
+                const body = capitalize(i === -1 ? pt : pt.slice(i + 2));
+                return (
+                  <div key={pt} className="border-t border-border pt-4">
+                    <dt className="font-display text-[16px] font-semibold tracking-tight text-text">{name}</dt>
+                    <dd className="mt-2 text-[16px] leading-[1.6] text-body">{body}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+            {restExperience[0]?.points.length ? (
+              <div className="mt-7 border-t border-border pt-4">
+                <p className="text-[13px] text-muted">
+                  Before that, {restExperience[0].org}, {uncapitalize(restExperience[0].role)}:{" "}
+                  {restExperience[0].points.map((p) => uncapitalize(p.replace(/\.$/, ""))).join("; ")}.
+                </p>
+              </div>
+            ) : null}
+          </Tile>
+
+          {/* Stack: six groups across the full width */}
+          <Tile as="section" aria-labelledby="stack-title" className="sm:col-span-6 lg:col-span-12">
+            <h2 id="stack-title" className="font-display text-[20px] font-semibold tracking-tight text-text">
+              Stack
+            </h2>
+            <dl className="mt-5 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+              {STACK.map(({ group, items }) => (
+                <div key={group} className="border-t border-border pt-4">
+                  <dt className="text-[13px] text-muted">{group}</dt>
+                  <dd className="mt-1.5 text-[16px] leading-relaxed text-text">{items}</dd>
                 </div>
               ))}
             </dl>
-          </div>
-        </section>
+          </Tile>
+        </Bento>
 
-        {/* ── WORK ── */}
-        <section id="work" className="scroll-mt-20 pt-24 sm:pt-32">
-          <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
-            <SectionTitle>Selected work</SectionTitle>
-            <p className="text-[14px] text-muted">
-              {projects.length} products, {projects.filter((p) => p.architecture).length} with architecture diagrams
+        {/* ── FOOTER ── */}
+        <Bento as="div" className="mt-3 sm:mt-4">
+          <Tile as="section" aria-labelledby="email-title" className="min-h-[260px] sm:col-span-6 lg:col-span-7">
+            <p id="email-title" className="max-w-[420px] text-[13px] leading-snug text-muted">
+              Open to freelance projects and full-time roles. Email is the fastest way to
+              reach me. I reply within a day.
             </p>
-          </div>
-          <WorkIndex projects={projects} onOpen={openProject} />
-        </section>
-
-        {/* ── NOW ── */}
-        <section id="now" className="scroll-mt-20 pt-24 sm:pt-32">
-          <div className="max-w-[820px]">
-            <SectionTitle>Now</SectionTitle>
-            <dl className="mt-6 grid gap-x-10 gap-y-6 border-t border-border pt-6 sm:grid-cols-2">
-              {[
-                { k: "Working at", v: "Jfreaks Software Solutions, since 2023" },
-                { k: "Open to", v: "Freelance projects and full-time roles" },
-                { k: "Main stack", v: "Node.js, Go, Next.js, MySQL, MongoDB" },
-                { k: "Based in", v: <>Lahore, Pakistan · <LocalTime /> local (UTC+5)</> },
-              ].map(({ k, v }) => (
-                <div key={k} className="grid grid-cols-[110px_1fr] gap-4">
-                  <dt className="text-[14px] text-muted">{k}</dt>
-                  <dd className="text-[15.5px] leading-snug text-text">{v}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className="mt-6 font-mono text-[11.5px] text-faint">Updated September 2026</p>
-          </div>
-        </section>
-
-        {/* ── CONTACT ── */}
-        <section id="contact" className="scroll-mt-20 pt-24 pb-14 sm:pt-32">
-          <div className="max-w-[820px] border-t border-border pt-10">
-            <SectionTitle>Contact</SectionTitle>
-            <p className="mt-4 max-w-[520px] text-[16px] leading-[1.65] text-body">
-              Freelance projects and full-time roles. Email is the fastest way to reach me.
-            </p>
-            <div className="mt-8">
+            <div className="mt-auto pt-12">
               <CopyEmail email={EMAIL} size="lg" />
             </div>
-            <p className="mt-5 text-[15px] text-muted">
-              Or{" "}
-              <Link href="/contact" className="link">
-                use the contact form
-              </Link>
-              .
-            </p>
-          </div>
+          </Tile>
 
-          <footer className="mt-24 flex flex-col gap-4 border-t border-border pt-6 text-[13px] text-muted sm:flex-row sm:items-start sm:justify-between">
-            <p className="max-w-[520px] leading-relaxed">
-              Suleman Ali, Lahore. Set in Bricolage Grotesque and Instrument Sans. The
+          <Tile as="nav" aria-label="Elsewhere" className="sm:col-span-3 lg:col-span-2">
+            <Caption>Elsewhere</Caption>
+            <ul className="mt-3 flex flex-1 flex-col divide-y divide-border">
+              {[
+                { label: "GitHub", href: GITHUB, external: true },
+                { label: "LinkedIn", href: LINKEDIN, external: true },
+                { label: "Résumé", href: "/resume.pdf", download: "Suleman_Ali_Resume.pdf" },
+                { label: "Contact form", href: "/contact" },
+              ].map(({ label, href, external, download }) => (
+                <li key={label} className="flex flex-1 items-center">
+                  {external ? (
+                    <a href={href} target="_blank" rel="noopener noreferrer" className="group/row flex w-full items-center justify-between gap-3 py-3 text-[15px] text-text">
+                      {label}
+                      <ArrowUpRight className={ROW_ARROW} aria-hidden="true" />
+                    </a>
+                  ) : download ? (
+                    <a href={href} download={download} className="group/row flex w-full items-center justify-between gap-3 py-3 text-[15px] text-text">
+                      {label}
+                      <ArrowUpRight className={ROW_ARROW} aria-hidden="true" />
+                    </a>
+                  ) : (
+                    <Link href={href} className="group/row flex w-full items-center justify-between gap-3 py-3 text-[15px] text-text">
+                      {label}
+                      <ArrowUpRight className={ROW_ARROW} aria-hidden="true" />
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </Tile>
+
+          <Tile as="footer" className="sm:col-span-3 lg:col-span-3">
+            <Caption>Colophon</Caption>
+            <p className="mt-3 text-[13.5px] leading-[1.6] text-body">
+              Set in Bricolage Grotesque, Instrument Sans and JetBrains Mono. The
               architecture diagrams are hand-laid SVG driven by the same data as the
-              case studies.
+              case studies. Built with Next.js and Tailwind CSS.
             </p>
-            <div className="flex items-center gap-5">
-              <a href="https://github.com/Suleman-Ali-Asif" target="_blank" rel="noopener noreferrer" className="link-muted">GitHub</a>
-              <a href="https://linkedin.com/in/suleman-ali-asif" target="_blank" rel="noopener noreferrer" className="link-muted">LinkedIn</a>
-              <a href="/resume.pdf" download="Suleman_Ali_Resume.pdf" className="link-muted">Résumé</a>
+            <div className="mt-auto flex items-baseline justify-between gap-4 pt-8 text-[13px] text-muted">
+              <span>Suleman Ali, Lahore</span>
+              <a href="#main" className="link-muted">Back to top</a>
             </div>
-          </footer>
-        </section>
+          </Tile>
+        </Bento>
       </main>
 
       <ProjectDetail />

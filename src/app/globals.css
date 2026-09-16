@@ -3,17 +3,19 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ── Semantic tokens ─────────────────────────────────────────────────────────
-   Near-monochrome. Warm-neutral paper in light, soft black in dark. One indigo
-   accent, reserved for links, selection and the diagram highlight — never for
-   filled panels. Token names are shared with SystemDesignVisualizer. */
+   Near-monochrome. The page ground (--bg) is a warm stone grey in light and a
+   near-black in dark; tiles (--surface) sit on it like paper on a table, so the
+   contrast between the two carries the bento layout. One indigo accent,
+   reserved for links, selection and the diagram highlight — never for filled
+   panels. Token names are shared with SystemDesignVisualizer. */
 
 :root {
-  --bg:             #f7f7f5;
-  --surface:        #fdfdfc;
-  --surface-2:      #efefec;
-  --surface-3:      #e6e6e2;
-  --border:         #e2e2de;
-  --border-strong:  #c9c9c3;
+  --bg:             #e3e2dc;
+  --surface:        #f7f6f2;
+  --surface-2:      #eceae4;
+  --surface-3:      #dfddd6;
+  --border:         #dad8d1;
+  --border-strong:  #bdbbb3;
 
   --primary:        #4d4bc4;
   --primary-strong: #3b39a8;
@@ -23,7 +25,7 @@
   --text:           #17171a;
   --text-body:      #46464d;
   --text-muted:     #6f6f78;
-  --text-faint:     #a3a3aa;
+  --text-faint:     #8a8a92;  /* decorative only (icons, markers); not for text */
 
   --success:        #3f9c6b;
   --danger:         #c2434f;
@@ -33,12 +35,12 @@
 }
 
 .dark {
-  --bg:             #0e0e10;
-  --surface:        #141416;
-  --surface-2:      #1b1b1e;
-  --surface-3:      #232327;
-  --border:         #25252a;
-  --border-strong:  #37373d;
+  --bg:             #0a0a0b;
+  --surface:        #171719;
+  --surface-2:      #1f1f22;
+  --surface-3:      #28282c;
+  --border:         #2a2a2f;
+  --border-strong:  #3d3d44;
 
   --primary:        #a9a6ff;
   --primary-strong: #c1bfff;
@@ -48,7 +50,7 @@
   --text:           #ececea;
   --text-body:      #b3b3b6;
   --text-muted:     #82828a;
-  --text-faint:     #56565d;
+  --text-faint:     #6c6c74;  /* decorative only (icons, markers); not for text */
 
   --success:        #6fc394;
   --danger:         #e07a84;
@@ -137,11 +139,57 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
+/* Skip link: visually hidden until focused */
+.skip-link {
+  position: absolute;
+  left: 1.25rem;
+  top: 0.75rem;
+  z-index: 60;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 14px;
+  transform: translateY(-200%);
+  transition: transform 0.15s ease;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline-offset: 2px;
+}
+
+/* Theme change: ease every tokened colour for one beat, not just <body>.
+   ThemeToggle adds .theme-switching to <html> for 300ms. */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.25s ease,
+    fill 0.25s ease,
+    stroke 0.25s ease,
+    text-decoration-color 0.25s ease !important;
+}
+
+/* Sticky header falls back to a solid surface when translucency is unwanted */
+@media (prefers-reduced-transparency: reduce) {
+  .site-header {
+    background-color: var(--bg) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* Reduced motion: remove movement, keep colour and opacity feedback.
+   Framer Motion components read useReducedMotion() and fall back to fades. */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-property: color, background-color, border-color, text-decoration-color, opacity !important;
   }
+  .theme-switching * { transition-duration: 0.01ms !important; }
 }

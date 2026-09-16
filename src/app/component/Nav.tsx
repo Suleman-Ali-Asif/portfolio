@@ -4,18 +4,20 @@ import Link from "next/link";
 import { NAV } from "../utils/constants";
 import LocalTime from "./LocalTime";
 import ThemeToggle from "./ThemeToggle";
+import { TILE_RADIUS } from "./Tile";
 
 interface NavProps {
   /** id of the section currently in view; omit on pages without sections */
   activeSection?: string;
 }
 
+/** Top bar as the first tile of the bento: name and clock left, links right. */
 export default function Nav({ activeSection }: NavProps) {
   return (
-    <header className="sticky top-0 z-30 bg-bg/90 supports-[backdrop-filter]:bg-bg/75 supports-[backdrop-filter]:backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-[1040px] items-center justify-between gap-4 px-5 sm:px-8">
+    <header className="mx-auto max-w-[1440px] px-3 pt-3 sm:px-4 sm:pt-4">
+      <div className={`flex h-16 items-center justify-between gap-4 bg-surface px-5 sm:px-7 ${TILE_RADIUS}`}>
         <div className="flex items-baseline gap-3">
-          <Link href="/" className="whitespace-nowrap font-display text-[15px] font-semibold tracking-tight text-text">
+          <Link href="/" className="whitespace-nowrap font-display text-[16px] font-semibold tracking-tight text-text">
             Suleman Ali
           </Link>
           <span className="hidden items-baseline gap-1.5 text-[12.5px] text-muted sm:inline-flex">
@@ -33,8 +35,8 @@ export default function Nav({ activeSection }: NavProps) {
                 href={`/#${id}`}
                 aria-current={isActive ? "location" : undefined}
                 className={`px-1.5 py-2 text-[13.5px] transition-colors duration-200 sm:px-2.5 sm:text-[14px] ${
-                  isActive ? "text-text" : "text-muted hover:text-text"
-                }`}
+                  id === "about" ? "hidden sm:inline" : ""
+                } ${isActive ? "text-text" : "text-muted hover:text-text"}`}
               >
                 {label}
               </a>
@@ -44,9 +46,6 @@ export default function Nav({ activeSection }: NavProps) {
             <ThemeToggle />
           </span>
         </nav>
-      </div>
-      <div className="mx-auto max-w-[1040px] px-5 sm:px-8">
-        <div className="h-px bg-border" />
       </div>
     </header>
   );

@@ -32,6 +32,10 @@ export interface ProjectItem {
   description: string;
   stack: string[];
   url?: string;
+  /** what I owned on the project, one short phrase */
+  role?: string;
+  /** the single most concrete result, one sentence */
+  outcome?: string;
   problem?: string;
   whatIBuilt?: string[];
   engineeringWork?: string[];

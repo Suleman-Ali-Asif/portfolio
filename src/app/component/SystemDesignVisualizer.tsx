@@ -98,7 +98,7 @@ export default function SystemDesignVisualizer({ architecture }: { architecture:
           const e = architecture.edges.find((e) => `${e.from}>${e.to}` === hEdge);
           if (!e) return null;
           const dir = e.bidirectional ? "↔" : "→";
-          return `${nodeMap[e.from].label} ${dir} ${nodeMap[e.to].label} — ${e.label}`;
+          return `${nodeMap[e.from].label} ${dir} ${nodeMap[e.to].label}: ${e.label}`;
         })()
       : null;
 
