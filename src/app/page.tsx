@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import CopyEmail from "./component/CopyEmail";
+import DotLaptop from "./component/DotLaptop";
 import LocalTime from "./component/LocalTime";
 import Nav from "./component/Nav";
 import ProjectDetail from "./component/ProjectDetail";
@@ -57,29 +58,6 @@ const LINKEDIN = "https://linkedin.com/in/suleman-ali-asif";
 /** Small caption in a tile's top-left corner. */
 function Caption({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return <p className={`text-[13px] leading-snug text-muted ${className}`}>{children}</p>;
-}
-
-/** Hairline mark for the headline tile: three orbits and the bodies on them. */
-function OrbitMark({ className = "" }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 120 120"
-      aria-hidden="true"
-      className={className}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1"
-    >
-      <circle cx="60" cy="60" r="56" />
-      <circle cx="60" cy="60" r="38" />
-      <circle cx="60" cy="60" r="20" />
-      <circle cx="60" cy="60" r="3" fill="currentColor" stroke="none" />
-      <circle cx="98" cy="60" r="2.5" fill="currentColor" stroke="none" />
-      <circle cx="33" cy="33" r="2.5" fill="currentColor" stroke="none" />
-      <circle cx="60" cy="116" r="2.5" fill="currentColor" stroke="none" />
-      <circle cx="78" cy="49" r="2" fill="currentColor" stroke="none" />
-    </svg>
-  );
 }
 
 const capitalize = (t: string) => t.charAt(0).toUpperCase() + t.slice(1);
@@ -216,10 +194,10 @@ function PortfolioInner() {
                 <em className="block font-serif font-normal italic text-text">one engineer.</em>
               </h1>
               <div className="mt-4 flex items-start justify-between gap-6">
-                <Caption className="max-w-[60%]">
+                <Caption className="max-w-[48%]">
                   Full-stack engineer at Jfreaks Software Solutions, Lahore. Mostly backend.
                 </Caption>
-                <OrbitMark className="h-20 w-20 flex-shrink-0 text-text sm:h-24 sm:w-24" />
+                <DotLaptop className="h-28 w-40 flex-shrink-0 text-text sm:h-32 sm:w-52" />
               </div>
               <div className="mt-auto border-t border-border pt-5">
                 <div className="flex items-baseline gap-2 text-[13px] text-muted">
